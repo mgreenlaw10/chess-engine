@@ -5,7 +5,7 @@
 
 int main(void) {
 
-    InitWindow(900, 900, "Chess Engine");
+    InitWindow(600, 600, "Chess Engine");
     SetTargetFPS(10);
 
     board_t board = new_board();
@@ -16,7 +16,7 @@ int main(void) {
         BeginDrawing();
         ClearBackground(WHITE);
         
-        draw_board(board, piece_textures, 50, 50, 800, 800);
+        draw_board(board, piece_textures, 20, 20, 560, 560);
 
         EndDrawing();
     }

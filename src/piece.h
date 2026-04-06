@@ -30,11 +30,3 @@ typedef unsigned char piece_t;
 // Piece constructor
 //
 #define MAKE_PIECE(type, color) ((type << 1) | (color))
-
-void get_possible_moves(piece_t piece);
-void get_possible_moves_pawn(piece_t pawn);
-void get_possible_moves_rook(piece_t rook);
-void get_possible_moves_bishop(piece_t bishop);
-void get_possible_moves_knight(piece_t knight);
-void get_possible_moves_king(piece_t king);
-void get_possible_moves_queen(piece_t queen);
