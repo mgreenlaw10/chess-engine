@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include <stdio.h>
 
 Texture2D get_piece_textures() {
     Texture2D texture = LoadTexture("res/pieces.png");
@@ -73,7 +74,8 @@ void draw_board(board_t board, Texture2D piece_textures, float x, float y, float
             DrawRectangleRec(dst, light_square? LIGHT_SQUARE_COLOR : DARK_SQUARE_COLOR);
 
             piece_t piece = board.pieces[i][j];
-            if (PIECE_TYPE(piece) == NONE) {
+            if (PIECE_TYPE(piece) == NONE) 
+            {
                 continue;
             }
             DrawTexturePro(piece_textures, get_source_region(piece), dst, (Vector2){0, 0}, 0.0f, WHITE);

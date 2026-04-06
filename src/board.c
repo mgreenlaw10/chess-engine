@@ -15,6 +15,12 @@ static void initialize_pieces(piece_t pieces[8][8]) {
     for (int i = 0; i < 8; i++) {
         pieces[1][i] = MAKE_PIECE(PAWN, PIECE_COLOR_BLACK);
     }
+    // Fill in empty space
+    for (int i = 2; i < 6; i++) {
+        for (int j = 0; j < 8; j++) {
+            pieces[i][j] = (piece_t)0;
+        }
+    }
     // White on bottom
     pieces[7][0] = MAKE_PIECE(ROOK, PIECE_COLOR_WHITE);
     pieces[7][1] = MAKE_PIECE(KNIGHT, PIECE_COLOR_WHITE);
