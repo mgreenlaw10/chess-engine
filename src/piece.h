@@ -19,8 +19,8 @@ typedef unsigned char piece_t;
 //
 // Color codes
 //
-#define WHITE 0x0
-#define BLACK 0x1
+#define PIECE_COLOR_WHITE 0x0
+#define PIECE_COLOR_BLACK 0x1
 //
 // Bitfield extractors
 //
