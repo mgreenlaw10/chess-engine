@@ -8,4 +8,3 @@ typedef struct {
 } board_t;
 
 board_t new_board();
-void print_board(board_t);

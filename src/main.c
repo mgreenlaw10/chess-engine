@@ -9,15 +9,14 @@ int main(void) {
     SetTargetFPS(10);
 
     board_t board = new_board();
-    //print_board(board);
+    Texture2D piece_textures = get_piece_textures();
 
     while (!WindowShouldClose()) {
 
         BeginDrawing();
         ClearBackground(WHITE);
         
-        //DrawCircle(100, 100, 20, BLACK);
-        draw_board(board, 50, 50, 800, 800);
+        draw_board(board, piece_textures, 50, 50, 800, 800);
 
         EndDrawing();
     }

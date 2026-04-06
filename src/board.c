@@ -36,49 +36,4 @@ board_t new_board() {
     return board;
 }
 
-void print_board(board_t board) {
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            char pbuf[3];
-            pbuf[2] = '\0';
-            
-            switch (PIECE_TYPE(board.pieces[i][j])) {
-                case NONE:
-                    pbuf[0] = ' ';
-                    pbuf[1] = ' ';
-                    goto print; 
-                case PAWN:
-                    pbuf[1] = 'p';
-                    break;
-                case ROOK:
-                    pbuf[1] = 'r';
-                    break;
-                case KNIGHT:
-                    pbuf[1] = 'k';
-                    break;
-                case BISHOP:
-                    pbuf[1] = 'b';
-                    break;
-                case QUEEN:
-                    pbuf[1] = 'q';
-                    break;
-                case KING:
-                    pbuf[1] = 'K';
-                    break;
-            }
-            switch (PIECE_COLOR(board.pieces[i][j])) {
-                case PIECE_COLOR_WHITE:
-                    pbuf[0] = 'w';
-                    break;
-                case PIECE_COLOR_BLACK:
-                    pbuf[0] = 'b';
-                    break;
-            }
-
-            print:
-            printf("[%s]", pbuf);
-        }
-        printf("\n");
-    }
-}
  
