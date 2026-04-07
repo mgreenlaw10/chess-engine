@@ -31,15 +31,46 @@ int main(void)
             int clicked_row;
             get_square_under_mouse(board_x, board_y, board_w, board_h, &clicked_col, &clicked_row);
 
-            // testing moves
-            if (gui.selected_col == NO_SELECTION || gui.selected_row == NO_SELECTION) {
+            // If no piece is currently selected, select the clicked square
+            if (gui.selected_col == NO_SELECTION || gui.selected_row == NO_SELECTION) 
+            {
                 gui.selected_col = clicked_col;
                 gui.selected_row = clicked_row;
             }
-            else {
-                move_piece(&board, gui.selected_col, gui.selected_row, clicked_col, clicked_row);
-                gui.selected_col = NO_SELECTION;
-                gui.selected_row = NO_SELECTION;
+            // If a piece is selected, move it to the clicked square
+            // only if the clicked square is a valid move
+            else 
+            {
+                move_t moves[32];
+                int moved = 0;
+                int num_moves = 0;
+
+                all_moves_for_piece (
+                    &board, 
+                    gui.selected_row, 
+                    gui.selected_col, 
+                    moves, 
+                    &num_moves
+                );
+                
+                for (int i = 0; i < num_moves; i++) 
+                {
+                    if (moves[i].dest_column == clicked_col 
+                     && moves[i].dest_row == clicked_row) 
+                    {
+                        move_piece(&board, gui.selected_col, gui.selected_row, clicked_col, clicked_row);
+                        gui.selected_col = NO_SELECTION;
+                        gui.selected_row = NO_SELECTION;
+                        moved = 1;
+                        break;
+                    }
+                }
+                // If the clicked square is not a valid move, select it instead
+                if (!moved) 
+                {
+                    gui.selected_col = clicked_col;
+                    gui.selected_row = clicked_row;
+                }              
             }
         }
 
