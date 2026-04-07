@@ -59,9 +59,74 @@ int all_moves_for_piece(board_t *board, int row, int column, move_t moves[], int
 
     return 0;
 }
+//
+// Find pawn moves:
+// Check each diagonal for an enemy piece,
+// and check in front for an empty square.
+//
+void get_possible_moves_pawn(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) 
+{
+    int moves_found = 0;
+    int target_row = (color == PIECE_COLOR_WHITE)? row - 1 : row + 1;
 
-void get_possible_moves_pawn(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) {
+    // should never be true once promoting is implemented
+    if (target_row < 0 || target_row > 7) 
+    {
+        *num_moves = 0;
+        return;
+    }
 
+    // check the three squares in front
+    int result;
+    
+    // check side 1 for enemy piece
+    if (column - 1 > 0) 
+    {
+        result = target_state(board, target_row, column - 1, color);
+        if (result == ENEMY)
+        {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                target_row,
+                column - 1,
+                board->pieces[row][column],
+                board->pieces[target_row][column - 1]
+            };
+        }
+    }
+
+    // check side 2 for enemy piece
+    if (column + 1 < 8) 
+    {
+        result = target_state(board, target_row, column + 1, color);
+        if (result == ENEMY)
+        {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                target_row,
+                column + 1,
+                board->pieces[row][column],
+                board->pieces[target_row][column + 1]
+            };
+        }
+    }
+
+    // check in front for empty space
+    result = target_state(board, target_row, column, color);
+    if (result == EMPTY) {
+        moves[moves_found++] = (move_t) {
+            row,
+            column,
+            target_row,
+            column,
+            board->pieces[row][column],
+            board->pieces[target_row][column]
+        };
+    }
+
+    *num_moves = moves_found;
 }
 //
 // Find rook moves:
