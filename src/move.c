@@ -13,7 +13,7 @@ int target_state(board_t *board, int row, int column, int color){
     piece_t target = board->pieces[row][column];
 
     // is this how to identify empty square ??
-    if (PIECE_COLOR(target) == NONE) {
+    if (PIECE_TYPE(target) == NONE) {
         return EMPTY;
     }
     // target occupied by same color piece 
