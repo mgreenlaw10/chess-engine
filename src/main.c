@@ -23,8 +23,10 @@ int main(void)
     gui_state gui = new_gui_state();
     Texture2D piece_textures = load_piece_textures();
 
-    while (!WindowShouldClose()) 
-    {
+    while (!WindowShouldClose()) {   
+        //
+        // Handle mouse input
+        //
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
         {
             int clicked_col;
@@ -73,10 +75,12 @@ int main(void)
                 }              
             }
         }
-
+        //
+        // Draw
+        //
         BeginDrawing();
+
         ClearBackground(WHITE);
-        
         draw_board(&board, &gui, piece_textures, board_x, board_y, board_w, board_h);
 
         EndDrawing();
