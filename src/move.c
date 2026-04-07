@@ -2,6 +2,8 @@
 #include "piece.h"
 #include "move.h"
 
+#include <stdio.h>
+
 #define EMPTY 0
 #define TAKEN 1
 #define ENEMY 2
@@ -62,18 +64,191 @@ void get_possible_moves_pawn(board_t *board, unsigned char color, int row, int c
 
 }
 
-void get_possible_moves_rook(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) {
+void get_possible_moves_rook(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) 
+{
+    int moves_found = 0;
+    // move in positive col direction
+    for (int i = column + 1; i < 8; i++) 
+    {
+        int result = target_state(board, row, i, color);
 
+        if (result == ENEMY) 
+        {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                row,
+                i,
+                board->pieces[row][column],
+                board->pieces[row][i]
+            };
+            break;
+        }
+        else if (result == TAKEN)
+        {
+            break;
+        }
+        else {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                row,
+                i,
+                board->pieces[row][column],
+                board->pieces[row][i]
+            };
+        }
+    }
+    // move in negative col direction
+    for (int i = column - 1; i > -1; i--) 
+    {
+        int result = target_state(board, row, i, color);
+
+        if (result == ENEMY) 
+        {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                row,
+                i,
+                board->pieces[row][column],
+                board->pieces[row][i]
+            };
+            break;
+        }
+        else if (result == TAKEN)
+        {
+            break;
+        }
+        else {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                row,
+                i,
+                board->pieces[row][column],
+                board->pieces[row][i]
+            };
+        }
+    }
+    // move in positive row direction
+    for (int i = row + 1; i < 8; i++) 
+    {
+        int result = target_state(board, i, column, color);
+
+        if (result == ENEMY) 
+        {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                i,
+                column,
+                board->pieces[row][column],
+                board->pieces[i][column]
+            };
+            break;
+        }
+        else if (result == TAKEN)
+        {
+            break;
+        }
+        else {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                i,
+                column,
+                board->pieces[row][column],
+                board->pieces[i][column]
+            };
+        }
+    }
+    // move in negative row direction
+    for (int i = row - 1; i > -1; i--) 
+    {
+        int result = target_state(board, i, column, color);
+
+        if (result == ENEMY) 
+        {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                i,
+                column,
+                board->pieces[row][column],
+                board->pieces[i][column]
+            };
+            break;
+        }
+        else if (result == TAKEN)
+        {
+            break;
+        }
+        else {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                i,
+                column,
+                board->pieces[row][column],
+                board->pieces[i][column]
+            };
+        }
+    }
+
+    *num_moves = moves_found;
 }
 
-void get_possible_moves_bishop(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) {
+void get_possible_moves_bishop(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) 
+{
+    int moves_found = 0;
+    int distance;
 
+    distance = (7-column) < (7-row)? 
+               (7-column) : (7-row);
+
+    for (int i = 1; i < distance; i++) 
+    {
+        int target_row = row + i;
+        int target_col = column + i;
+
+        int result = target_state(board, target_row, target_col, color);
+
+        if (result == ENEMY) 
+        {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                target_row,
+                target_col,
+                board->pieces[row][column],
+                board->pieces[target_row][target_col]
+            };
+            break;
+        }
+        else if (result == TAKEN)
+        {
+            break;
+        }
+        else {
+            moves[moves_found++] = (move_t) {
+                row,
+                column,
+                target_row,
+                target_col,
+                board->pieces[row][column],
+                board->pieces[target_row][target_col]
+            };
+        }
+    }
+
+    *num_moves = moves_found;
 }
 
 static int knight_move_offsets[8][2] = {
     {-2, -1},
     {-2,  1},
-    {-1. -2},
+    {-1, -2},
     {-1,  2},
     { 1, -2},
     { 1,  2},

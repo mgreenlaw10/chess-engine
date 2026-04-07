@@ -27,7 +27,20 @@ int main(void)
     {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
         {
-            get_square_under_mouse(board_x, board_y, board_w, board_h, &gui.selected_col, &gui.selected_row);
+            int clicked_col;
+            int clicked_row;
+            get_square_under_mouse(board_x, board_y, board_w, board_h, &clicked_col, &clicked_row);
+
+            // testing moves
+            if (gui.selected_col == NO_SELECTION || gui.selected_row == NO_SELECTION) {
+                gui.selected_col = clicked_col;
+                gui.selected_row = clicked_row;
+            }
+            else {
+                move_piece(&board, gui.selected_col, gui.selected_row, clicked_col, clicked_row);
+                gui.selected_col = NO_SELECTION;
+                gui.selected_row = NO_SELECTION;
+            }
         }
 
         BeginDrawing();

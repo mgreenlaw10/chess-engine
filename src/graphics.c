@@ -121,7 +121,6 @@ void draw_board(board_t* board, gui_state* gui, Texture2D piece_textures, float 
             for (int m = 0; m < num_possible_moves; m++) 
             {   
                 move_t move = possible_moves[m];
-                printf("(%d, %d)\n", move.dest_column, move.dest_row);
                 if (move.dest_row == i && move.dest_column == j)
                 {
                     DrawRectangleRec(dst, SELECT_TINT_COLOR);

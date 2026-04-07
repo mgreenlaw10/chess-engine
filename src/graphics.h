@@ -24,7 +24,7 @@ inline gui_state new_gui_state(void)
 //
 #define DARK_SQUARE_COLOR (Color){49, 224, 85, 255}
 #define LIGHT_SQUARE_COLOR (Color){247, 239, 185, 255}
-#define SELECT_TINT_COLOR (Color){200, 60, 60, 63}
+#define SELECT_TINT_COLOR (Color){200, 60, 60, 255}
 //
 // Texture source regions
 //
