@@ -72,11 +72,37 @@ static Rectangle get_source_region(piece_t piece)
     return source;
 }
 
-void draw_board(board_t board, gui_state gui, Texture2D piece_textures, float x, float y, float w, float h) 
+void draw_board(board_t* board, gui_state* gui, Texture2D piece_textures, float x, float y, float w, float h) 
 {
     float square_w = w / 8;
-    float square_h = h / 8;    
+    float square_h = h / 8;
+    //
+    // Get possible moves for selected piece.
+    // Must do this before drawing so we can highlight those tiles during draw.
+    //
+    piece_t selected_piece = (piece_t)NONE;
+    move_t possible_moves[32];
+    int num_possible_moves = 0;
 
+    if (gui->selected_col != NO_SELECTION || 
+        gui->selected_row != NO_SELECTION) 
+    {
+        selected_piece = board->pieces[gui->selected_row][gui->selected_col];
+    }
+
+    if (PIECE_TYPE(selected_piece) != NONE) 
+    {
+        all_moves_for_piece (
+            board, 
+            gui->selected_row, 
+            gui->selected_col, 
+            possible_moves, 
+            &num_possible_moves
+        );
+    }
+    //
+    // Draw each square
+    //
     for (int i = 0; i < 8; i++) 
     {
         for (int j = 0; j < 8; j++) 
@@ -88,18 +114,32 @@ void draw_board(board_t board, gui_state gui, Texture2D piece_textures, float x,
 
             Rectangle dst = {x_pos, y_pos, square_w, square_h};
             DrawRectangleRec(dst, light_square? LIGHT_SQUARE_COLOR : DARK_SQUARE_COLOR);
-            
-            // Highlight selected square
-            if (gui.selected_col == j && gui.selected_row == i) 
+            //
+            // Highlight square if it is a possible move of
+            // the selected piece.
+            //
+            for (int m = 0; m < num_possible_moves; m++) 
+            {   
+                move_t move = possible_moves[m];
+                printf("(%d, %d)\n", move.dest_column, move.dest_row);
+                if (move.dest_row == i && move.dest_column == j)
+                {
+                    DrawRectangleRec(dst, SELECT_TINT_COLOR);
+                }
+            }
+            //
+            // Highlight square if it is the selected piece.
+            //
+            if (gui->selected_row == i && gui->selected_col == j) 
             {
                 DrawRectangleRec(dst, SELECT_TINT_COLOR);
             }
-
-            piece_t piece = board.pieces[i][j];
-            if (PIECE_TYPE(piece) == NONE) 
-            {
-                continue;
-            }
+            //
+            // Draw the piece on the square.
+            //
+            piece_t piece = board->pieces[i][j];
+            if (PIECE_TYPE(piece) == NONE) continue;
+            
             DrawTexturePro(piece_textures, get_source_region(piece), dst, (Vector2){0, 0}, 0.0f, WHITE);
         }
     }

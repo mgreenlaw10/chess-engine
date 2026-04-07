@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "board.h"
+#include "move.h"
 //
 // GUi state
 //
@@ -45,8 +46,8 @@ Texture2D load_piece_textures();
 int get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row);
 
 void draw_board (
-    board_t board, 
-    gui_state gui,
+    board_t* board, 
+    gui_state* gui,
     Texture2D piece_textures, 
     float x, 
     float y, 

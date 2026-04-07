@@ -27,7 +27,7 @@ int target_state(board_t *board, int row, int column, int color){
 
 // i want to change the parameters for get possible moves
 // gonna return an array with all of the moves
-int all_moves_for_piece(board_t *board, int row, int column, move_t moves[]) {
+int all_moves_for_piece(board_t *board, int row, int column, move_t moves[], int* num_moves) {
 
     piece_t piece = board->pieces[row][column];
 
@@ -37,36 +37,36 @@ int all_moves_for_piece(board_t *board, int row, int column, move_t moves[]) {
         return 1;
     }
     else if (type == PAWN) {
-        get_possible_moves_pawn(board, PIECE_COLOR(piece), row, column, moves);
+        get_possible_moves_pawn(board, PIECE_COLOR(piece), row, column, moves, num_moves);
     }
     else if (type == KNIGHT) {
-        get_possible_moves_knight(board, PIECE_COLOR(piece), row, column, moves);
+        get_possible_moves_knight(board, PIECE_COLOR(piece), row, column, moves, num_moves);
     }
     else if (type == BISHOP) {
-        get_possible_moves_bishop(board, PIECE_COLOR(piece), row, column, moves);
+        get_possible_moves_bishop(board, PIECE_COLOR(piece), row, column, moves, num_moves);
     }
     else if (type == ROOK) {
-        get_possible_moves_rook(board, PIECE_COLOR(piece), row, column, moves);
+        get_possible_moves_rook(board, PIECE_COLOR(piece), row, column, moves, num_moves);
     }
     else if (type == QUEEN) {
-        get_possible_moves_queen(board, PIECE_COLOR(piece), row, column, moves);
+        get_possible_moves_queen(board, PIECE_COLOR(piece), row, column, moves, num_moves);
     }
     else if (type == KING) {
-        get_possible_moves_king(board, PIECE_COLOR(piece), row, column, moves);
+        get_possible_moves_king(board, PIECE_COLOR(piece), row, column, moves, num_moves);
     }
 
     return 0;
 }
 
-void get_possible_moves_pawn(board_t *board, unsigned char color, int row, int column, move_t moves[]) {
+void get_possible_moves_pawn(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) {
 
 }
 
-void get_possible_moves_rook(board_t *board, unsigned char color, int row, int column, move_t moves[]) {
+void get_possible_moves_rook(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) {
 
 }
 
-void get_possible_moves_bishop(board_t *board, unsigned char color, int row, int column, move_t moves[]) {
+void get_possible_moves_bishop(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) {
 
 }
 
@@ -81,7 +81,7 @@ static int knight_move_offsets[8][2] = {
     { 2,  1}
 };
 
-void get_possible_moves_knight(board_t *board, unsigned char color, int row, int col, move_t moves[]) 
+void get_possible_moves_knight(board_t *board, unsigned char color, int row, int col, move_t moves[], int* num_moves) 
 {
     int moves_found = 0;
     piece_t piece = board->pieces[row][col];
@@ -110,12 +110,13 @@ void get_possible_moves_knight(board_t *board, unsigned char color, int row, int
             };
         }
     }
+    *num_moves = moves_found;
 }
 
-void get_possible_moves_king(board_t *board, unsigned char color, int row, int column, move_t moves[]) {
+void get_possible_moves_king(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) {
 
 }
 
-void get_possible_moves_queen(board_t *board, unsigned char color, int row, int column, move_t moves[]) {
+void get_possible_moves_queen(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) {
 
 }

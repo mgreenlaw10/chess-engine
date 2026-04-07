@@ -33,7 +33,7 @@ int main(void)
         BeginDrawing();
         ClearBackground(WHITE);
         
-        draw_board(board, gui, piece_textures, board_x, board_y, board_w, board_h);
+        draw_board(&board, &gui, piece_textures, board_x, board_y, board_w, board_h);
 
         EndDrawing();
     }
