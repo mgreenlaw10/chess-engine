@@ -1,7 +1,23 @@
 #include "graphics.h"
 #include <stdio.h>
 
-Texture2D get_piece_textures() {
+int get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row) 
+{
+    int x = GetMouseX();
+    int y = GetMouseY();
+    int lx = x - board_x;
+    int ly = y - board_y;
+
+    if (lx < 0 || ly < 0 || lx > board_w || ly > board_h) {
+        return 1;
+    }
+
+    *col = lx * 8 / board_w;
+    *row = ly * 8 / board_h;
+}
+
+Texture2D load_piece_textures() 
+{
     Texture2D texture = LoadTexture("res/pieces.png");
     SetTextureFilter(texture, TEXTURE_FILTER_BILINEAR);
     return texture;
@@ -56,7 +72,7 @@ static Rectangle get_source_region(piece_t piece)
     return source;
 }
 
-void draw_board(board_t board, Texture2D piece_textures, float x, float y, float w, float h) 
+void draw_board(board_t board, gui_state gui, Texture2D piece_textures, float x, float y, float w, float h) 
 {
     float square_w = w / 8;
     float square_h = h / 8;    
@@ -72,6 +88,12 @@ void draw_board(board_t board, Texture2D piece_textures, float x, float y, float
 
             Rectangle dst = {x_pos, y_pos, square_w, square_h};
             DrawRectangleRec(dst, light_square? LIGHT_SQUARE_COLOR : DARK_SQUARE_COLOR);
+            
+            // Highlight selected square
+            if (gui.selected_col == j && gui.selected_row == i) 
+            {
+                DrawRectangleRec(dst, SELECT_TINT_COLOR);
+            }
 
             piece_t piece = board.pieces[i][j];
             if (PIECE_TYPE(piece) == NONE) 

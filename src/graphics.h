@@ -3,10 +3,27 @@
 #include "raylib.h"
 #include "board.h"
 //
+// GUi state
+//
+#define NO_SELECTION 0xFAFA
+typedef struct {
+    int selected_col, 
+        selected_row;
+} gui_state;
+
+inline gui_state new_gui_state(void) 
+{
+    return (gui_state) {
+        NO_SELECTION, 
+        NO_SELECTION
+    };
+}
+//
 // Board colors
 //
 #define DARK_SQUARE_COLOR (Color){49, 224, 85, 255}
 #define LIGHT_SQUARE_COLOR (Color){247, 239, 185, 255}
+#define SELECT_TINT_COLOR (Color){200, 60, 60, 63}
 //
 // Texture source regions
 //
@@ -23,6 +40,16 @@
 #define TEXTURE_REGION_WHITE_KING (Rectangle){60, 60, 60, 60}
 #define TEXTURE_REGION_BLACK_KING (Rectangle){60, 0, 60, 60}
 
-Texture2D get_piece_textures();
+Texture2D load_piece_textures();
 
-void draw_board(board_t, Texture2D, float, float, float, float);
+int get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row);
+
+void draw_board (
+    board_t board, 
+    gui_state gui,
+    Texture2D piece_textures, 
+    float x, 
+    float y, 
+    float w, 
+    float h
+);
