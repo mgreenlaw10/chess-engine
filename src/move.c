@@ -126,6 +126,32 @@ void get_possible_moves_pawn(board_t *board, unsigned char color, int row, int c
         };
     }
 
+    // SPECIAL MOVES:
+    // First move pawn can move 2 squares ahead
+        // if white row = 6
+        // if black row = 1
+    if (color == PIECE_COLOR_WHITE && row == 6 && target_state(board, row - 2, column, color) == EMPTY){
+        moves[moves_found++] = (move_t) {
+                row,
+                column,
+                row - 2,
+                column,
+                board->pieces[row][column],
+                board->pieces[row - 2][column]
+            };
+    }
+    if (color == PIECE_COLOR_BLACK && row == 1 && target_state(board, row + 2, column, color) == EMPTY){
+        moves[moves_found++] = (move_t) {
+                row,
+                column,
+                row + 2,
+                column,
+                board->pieces[row][column],
+                board->pieces[row + 2][column]
+            };
+    }
+    
+
     *num_moves = moves_found;
 }
 //
