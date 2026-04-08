@@ -306,6 +306,20 @@ void get_possible_moves_bishop(board_t *board, unsigned char color, int row, int
     *num_moves = moves_found;
 }
 //
+// Find queen moves:
+// Combine rook moves and bishop moves.
+//
+void get_possible_moves_queen(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves)
+{
+    int found_rook_moves = 0;
+    int found_bishop_moves = 0;
+
+    get_possible_moves_rook(board, color, row, column, moves, &found_rook_moves);
+    get_possible_moves_bishop(board, color, row, column, moves + found_rook_moves, &found_bishop_moves);
+
+    *num_moves = found_rook_moves + found_bishop_moves;
+}
+//
 // Use constant offsets for finding squares targeted
 // by a knight because it's easier.
 //
@@ -354,11 +368,54 @@ void get_possible_moves_knight(board_t *board, unsigned char color, int row, int
     }
     *num_moves = moves_found;
 }
+//
+// Use constant offsets for finding squares targeted
+// by a knight because it's easier.
+//
+static int king_move_offsets[8][2] = {
+    {-1, -1},
+    {-1,  0},
+    {-1,  1},
+    { 0, -1},
+    { 0,  1},
+    { 1, -1},
+    { 1,  0},
+    { 1,  1}
+};
+//
+// Find king moves:
+// Check that each square from each offset is open or has an enemy piece.
+//
+// *Need to remove moves that would result in self-check.
+//
+void get_possible_moves_king(board_t *board, unsigned char color, int row, int col, move_t moves[], int* num_moves) 
+{
+    int moves_found = 0;
+    piece_t piece = board->pieces[row][col];
 
-void get_possible_moves_king(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) {
+    for (int i = 0; i < 8; i++) 
+    {
+        int target_col = col + king_move_offsets[i][0];
+        int target_row = row + king_move_offsets[i][1];
 
-}
+        if (target_col < 0 || target_col > 7 || target_row < 0 || target_row > 7) 
+        {
+            continue;
+        }
 
-void get_possible_moves_queen(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) {
+        int result = target_state(board, target_row, target_col, color);
 
+        if (result == EMPTY || result == ENEMY) 
+        {
+            moves[moves_found++] = (move_t) {
+                row,
+                col,
+                target_row,
+                target_col,
+                piece,
+                board->pieces[target_row][target_col]
+            };
+        }
+    }
+    *num_moves = moves_found;
 }
