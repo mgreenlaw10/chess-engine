@@ -11,6 +11,21 @@ Color board_colors[COLOR_COUNT] = {
     [COLOR_VALID_MOVE_SQUARE] = {160, 40, 80, 255}
 };
 
+Rectangle piece_texture_regions[TEXTURE_REGION_COUNT] = {
+    [TEXTURE_REGION_WHITE_PAWN] = {300, 60, 60, 60},
+    [TEXTURE_REGION_BLACK_PAWN] = {300, 0, 60, 60},
+    [TEXTURE_REGION_WHITE_ROOK] = {120, 60, 60, 60},
+    [TEXTURE_REGION_BLACK_ROOK] = {120, 0, 60, 60},
+    [TEXTURE_REGION_WHITE_KNIGHT] = {180, 60, 60, 60},
+    [TEXTURE_REGION_BLACK_KNIGHT] = {180, 0, 60, 60},
+    [TEXTURE_REGION_WHITE_BISHOP] = {240, 60, 60, 60},
+    [TEXTURE_REGION_BLACK_BISHOP] = {240, 0, 60, 60},
+    [TEXTURE_REGION_WHITE_QUEEN] = {0, 60, 60, 60},
+    [TEXTURE_REGION_BLACK_QUEEN] = {0, 0, 60, 60},
+    [TEXTURE_REGION_WHITE_KING] = {60, 60, 60, 60},
+    [TEXTURE_REGION_BLACK_KING] = {60, 0, 60, 60}
+};
+
 int get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row) 
 {
     int x = GetMouseX();
@@ -43,38 +58,38 @@ static Rectangle get_source_region(piece_t piece)
     switch (PIECE_TYPE(piece)) {
         case PAWN:
             source = (PIECE_COLOR(piece) == PIECE_COLOR_WHITE)
-                ? TEXTURE_REGION_WHITE_PAWN
-                : TEXTURE_REGION_BLACK_PAWN;
+                ? piece_texture_regions[TEXTURE_REGION_WHITE_PAWN]
+                : piece_texture_regions[TEXTURE_REGION_BLACK_PAWN];
             break;
 
         case ROOK:
             source = (PIECE_COLOR(piece) == PIECE_COLOR_WHITE)
-                ? TEXTURE_REGION_WHITE_ROOK
-                : TEXTURE_REGION_BLACK_ROOK;
+                ? piece_texture_regions[TEXTURE_REGION_WHITE_ROOK]
+                : piece_texture_regions[TEXTURE_REGION_BLACK_ROOK];
             break;
 
         case KNIGHT:
             source = (PIECE_COLOR(piece) == PIECE_COLOR_WHITE)
-                ? TEXTURE_REGION_WHITE_KNIGHT
-                : TEXTURE_REGION_BLACK_KNIGHT;
+                ? piece_texture_regions[TEXTURE_REGION_WHITE_KNIGHT]
+                : piece_texture_regions[TEXTURE_REGION_BLACK_KNIGHT];
             break;
 
         case BISHOP:
             source = (PIECE_COLOR(piece) == PIECE_COLOR_WHITE)
-                ? TEXTURE_REGION_WHITE_BISHOP
-                : TEXTURE_REGION_BLACK_BISHOP;
+                ? piece_texture_regions[TEXTURE_REGION_WHITE_BISHOP]
+                : piece_texture_regions[TEXTURE_REGION_BLACK_BISHOP];
             break;
 
         case QUEEN:
             source = (PIECE_COLOR(piece) == PIECE_COLOR_WHITE)
-                ? TEXTURE_REGION_WHITE_QUEEN
-                : TEXTURE_REGION_BLACK_QUEEN;
+                ? piece_texture_regions[TEXTURE_REGION_WHITE_QUEEN]
+                : piece_texture_regions[TEXTURE_REGION_BLACK_QUEEN];
             break;
 
         case KING:
             source = (PIECE_COLOR(piece) == PIECE_COLOR_WHITE)
-                ? TEXTURE_REGION_WHITE_KING
-                : TEXTURE_REGION_BLACK_KING;
+                ? piece_texture_regions[TEXTURE_REGION_WHITE_KING]
+                : piece_texture_regions[TEXTURE_REGION_BLACK_KING];
             break;
 
         default:
@@ -87,7 +102,7 @@ static Rectangle get_source_region(piece_t piece)
 //
 // Move the selected piece to a new position.
 //
-bool move_selected_piece(board_t* board, gui_state* gui, int dst_row, int dst_col) {
+bool move_selected_piece(board_t* board, GameGuiState* gui, int dst_row, int dst_col) {
     //
     // If a king is in check, skip unless 
     // the selected piece is that king.
@@ -126,6 +141,7 @@ bool move_selected_piece(board_t* board, gui_state* gui, int dst_row, int dst_co
             && moves[i].dest_row == dst_row) 
         {
             move_piece(board, gui->selected_col, gui->selected_row, dst_col, dst_row);
+            board->turn_number++;
             return true;
         }
     }
@@ -179,7 +195,7 @@ void do_main_menu_loop(ProgramState* program_state)
 //
 // Main update loop for game.
 //
-void do_game_loop(board_t* board, gui_state* gui, Texture2D piece_textures) {
+void do_game_loop(board_t* board, GameGuiState* gui, Texture2D piece_textures) {
     //
     // Handle mouse input
     //
@@ -219,13 +235,31 @@ void do_game_loop(board_t* board, gui_state* gui, Texture2D piece_textures) {
 
     ClearBackground(WHITE);
     draw_board(board, gui, piece_textures, gui->board_x, gui->board_y, gui->board_w, gui->board_h);
+    draw_game_gui(board, gui);
 
     EndDrawing();
 }
 //
-// Main draw loop for game board.
+// Only called in do_game_loop
 //
-void draw_board(board_t* board, gui_state* gui, Texture2D piece_textures, float x, float y, float w, float h) 
+void draw_game_gui(board_t* board, GameGuiState* gui) 
+{
+    char turn_num_str[32];
+    snprintf(turn_num_str, sizeof(turn_num_str), "Turn number: %d", board->turn_number);
+
+    Rectangle turn_num_label_bounds = {
+        24,
+        24,
+        288,
+        48
+    };
+
+    GuiLabel(turn_num_label_bounds, turn_num_str);
+}
+//
+// Only called in do_game_loop
+//
+void draw_board(board_t* board, GameGuiState* gui, Texture2D piece_textures, float x, float y, float w, float h) 
 {
     float square_w = w / 8;
     float square_h = h / 8;

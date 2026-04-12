@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "gui.h"
 
-void loop(ProgramState* program_state, board_t* board, gui_state* gui, Texture2D piece_textures) {
+void loop(ProgramState* program_state, board_t* board, GameGuiState* gui, Texture2D piece_textures) {
     switch (*program_state) {
 
         case MAIN_MENU:
@@ -33,8 +33,9 @@ int main(void)
     SetTargetFPS(60);
 
     board_t board = new_board();
+    board.turn_number = 1;
 
-    gui_state gui = {
+    GameGuiState gui = {
         .selected_col = NO_SELECTION,
         .selected_row = NO_SELECTION,
         .board_x = board_x,
