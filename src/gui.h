@@ -57,7 +57,6 @@ extern Rectangle piece_texture_regions[TEXTURE_REGION_COUNT];
 Texture2D load_piece_textures();
 
 int get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row);
-bool move_selected_piece(board_t* board, GameGuiState* gui, int dst_row, int dst_col);
 //
 // Main update loop functions
 //

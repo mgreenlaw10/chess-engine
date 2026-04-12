@@ -74,7 +74,6 @@ void move_piece(board_t* board, int src_col, int src_row, int dst_col, int dst_r
     if (type == ROOK && src_row == dst_row
         && (src_row == 7 || src_row == 0) && PIECE_TYPE(captured) == NONE) {
 
-      
         piece_t king = board->pieces[src_row][4];
         
         if (PIECE_TYPE(king) == KING && PIECE_COLOR(king) == color) {
@@ -149,5 +148,63 @@ bool king_in_check(board_t* board, int color)
         }
     }
     return false;
+}
+
+bool white_move(board_t* board) {
+    return board->turn_number % 2 != 0;
+}
+
+static bool simulate_for_check(board_t board, int src_col, int src_row, int dst_col, int dst_row) {
+    move_piece(&board, src_col, src_row, dst_col, dst_row);
+    return king_in_check(&board, PIECE_COLOR(board.pieces[dst_row][dst_col]));
+}
+
+MoveResult try_move_piece(board_t* board, int src_col, int src_row, int dst_col, int dst_row) {
+    //
+    // If the wrong color is selected...
+    //
+    if (PIECE_COLOR(board->pieces[src_row][src_col]) == PIECE_COLOR_WHITE) {
+        if (!white_move(board)) return WRONG_TEAM;
+    }
+    else if (white_move(board)) return WRONG_TEAM;
+    //
+    // If a king is in check, skip unless 
+    // the selected piece is that king.
+    //
+    // Pass by value to copy
+    //
+    if (simulate_for_check(*board, src_col, src_row, dst_col, dst_row)) {
+        return KING_IN_CHECK;
+    }
+
+    move_t moves[32];
+    int num_moves = 0;
+
+    get_possible_moves (
+        board, 
+        src_row, 
+        src_col, 
+        moves, 
+        &num_moves
+    );
+    //
+    // Check the destination against
+    // all valid moves.
+    //
+    for (int i = 0; i < num_moves; i++) 
+    {
+        if (moves[i].dest_column == dst_col 
+            && moves[i].dest_row == dst_row) 
+        {
+            move_piece(board, src_col, src_row, dst_col, dst_row);
+            board->turn_number++;
+            return MOVE_SUCCESS;
+        }
+    }
+    //
+    // If no valid move matched
+    // the destination, return false.
+    //
+    return INVALID_MOVE;
 }
  
