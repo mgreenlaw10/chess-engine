@@ -1,15 +1,22 @@
 #pragma once
 
-#include "raylib.h"
+#include <raylib.h>
+#include <raygui.h>
+
 #include "board.h"
 #include "move.h"
+#include "program_state.h"
 //
-// GUi state
+// GUI state
 //
 #define NO_SELECTION 0xFAFA
 typedef struct {
-    int selected_col, 
-        selected_row;
+    int board_x;
+    int board_y;
+    int board_w;
+    int board_h;
+    int selected_col; 
+    int selected_row;
 } gui_state;
 
 inline gui_state new_gui_state(void) 
@@ -22,9 +29,15 @@ inline gui_state new_gui_state(void)
 //
 // Board colors
 //
-#define DARK_SQUARE_COLOR (Color){49, 224, 85, 255}
-#define LIGHT_SQUARE_COLOR (Color){247, 239, 185, 255}
-#define SELECT_TINT_COLOR (Color){200, 60, 60, 255}
+typedef enum {
+    COLOR_DARK_SQUARE,
+    COLOR_LIGHT_SQUARE,
+    COLOR_SELECTED_SQUARE,
+    COLOR_VALID_MOVE_SQUARE,
+    COLOR_COUNT
+} board_color;
+
+extern Color board_colors[COLOR_COUNT];
 //
 // Texture source regions
 //
@@ -44,6 +57,10 @@ inline gui_state new_gui_state(void)
 Texture2D load_piece_textures();
 
 int get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row);
+bool move_selected_piece(board_t* board, gui_state* gui, int dst_row, int dst_col);
+
+void do_main_menu_loop(ProgramState* program_state);
+void do_game_loop(board_t* board, gui_state* gui, Texture2D piece_textures);
 
 void draw_board (
     board_t* board, 
