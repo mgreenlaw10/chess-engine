@@ -29,7 +29,7 @@ int target_state(board_t *board, int row, int column, int color){
 
 // i want to change the parameters for get possible moves
 // gonna return an array with all of the moves
-int all_moves_for_piece(board_t *board, int row, int column, move_t moves[], int* num_moves) {
+int get_possible_moves(board_t *board, int row, int column, move_t moves[], int* num_moves) {
 
     piece_t piece = board->pieces[row][column];
 

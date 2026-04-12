@@ -9,9 +9,8 @@ typedef struct {
     piece_t capture_piece;
 } move_t;
 
-int all_moves_for_piece(board_t *board, int row, int column, move_t moves[], int* num_moves);
+int get_possible_moves(board_t *board, int row, int column, move_t moves[], int* num_moves);
 
-void get_possible_moves(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
 void get_possible_moves_pawn(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
 void get_possible_moves_rook(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
 void get_possible_moves_bishop(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);

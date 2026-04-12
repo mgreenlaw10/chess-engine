@@ -92,7 +92,7 @@ void draw_board(board_t* board, gui_state* gui, Texture2D piece_textures, float 
 
     if (PIECE_TYPE(selected_piece) != NONE) 
     {
-        all_moves_for_piece (
+        get_possible_moves (
             board, 
             gui->selected_row, 
             gui->selected_col, 

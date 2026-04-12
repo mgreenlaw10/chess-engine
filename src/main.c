@@ -25,7 +25,7 @@ bool move_selected_piece(board_t* board, gui_state* gui, int dst_row, int dst_co
     move_t moves[32];
     int num_moves = 0;
 
-    all_moves_for_piece (
+    get_possible_moves (
         board, 
         gui->selected_row, 
         gui->selected_col, 

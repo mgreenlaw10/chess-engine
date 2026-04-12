@@ -97,7 +97,7 @@ bool king_in_check(board_t* board, int color)
                 move_t moves[32];
                 int num_moves = 0;
 
-                all_moves_for_piece(board, i, j, moves, &num_moves);
+                get_possible_moves(board, i, j, moves, &num_moves);
 
                 for (int k = 0; k < num_moves; k++) {
                     if (moves[k].dest_row == king_row && moves[k].dest_column == king_col) 
