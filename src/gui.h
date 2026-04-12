@@ -19,13 +19,6 @@ typedef struct {
     int selected_row;
 } gui_state;
 
-inline gui_state new_gui_state(void) 
-{
-    return (gui_state) {
-        NO_SELECTION, 
-        NO_SELECTION
-    };
-}
 //
 // Board colors
 //
