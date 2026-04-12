@@ -45,18 +45,60 @@ board_t new_board() {
 
 void move_piece(board_t* board, int src_col, int src_row, int dst_col, int dst_row) 
 {
+    piece_t captured = board->pieces[dst_row][dst_col];
+
     board->pieces[dst_row][dst_col] = board->pieces[src_row][src_col];
     board->pieces[src_row][src_col] = (piece_t)NONE;
-    //
+
+    int color = PIECE_COLOR(board->pieces[dst_row][dst_col]);
+    int type = PIECE_TYPE(board->pieces[dst_row][dst_col]);
+    
+    // Castling
+    
+    // King
+    if (type == KING && src_row == dst_row
+        && (src_row == 7 || src_row == 0) && src_col == 4 && dst_col == 6) {
+
+        board->pieces[src_row][5] = board->pieces[src_row][7];
+        board->pieces[src_row][7] = (piece_t)NONE;
+        
+    }
+    
+    // Queen
+    if (type == KING && src_row == dst_row
+        && (src_row == 7 || src_row == 0) && src_col == 4 && dst_col == 2) {
+    
+        board->pieces[src_row][3] = board->pieces[src_row][0];
+        board->pieces[src_row][0] = (piece_t)NONE;
+    }
+    if (type == ROOK && src_row == dst_row
+        && (src_row == 7 || src_row == 0) && PIECE_TYPE(captured) == NONE) {
+
+      
+        piece_t king = board->pieces[src_row][4];
+        
+        if (PIECE_TYPE(king) == KING && PIECE_COLOR(king) == color) {
+
+            if (src_col == 7 && dst_col == 5 && PIECE_TYPE(board->pieces[src_row][6]) == NONE) {
+                board->pieces[src_row][6] = king;
+                board->pieces[src_row][4] = (piece_t)NONE;
+
+            } else if (src_col == 0 && dst_col == 3 && PIECE_TYPE(board->pieces[src_row][2]) == NONE) {
+                board->pieces[src_row][2] = king;
+                board->pieces[src_row][4] = (piece_t)NONE;
+            }
+        }
+    }
+    
     // Check if pawn should promote after moving.
-    //
-    if (PIECE_TYPE(board->pieces[dst_row][dst_col]) == PAWN) 
+    
+    if (type == PAWN) 
     {
-        if (PIECE_COLOR(board->pieces[dst_row][dst_col]) == PIECE_COLOR_WHITE && dst_row == 0) 
+        if (color == PIECE_COLOR_WHITE && dst_row == 0) 
         {
             board->pieces[dst_row][dst_col] = MAKE_PIECE(QUEEN, PIECE_COLOR_WHITE);
         }
-        else if (PIECE_COLOR(board->pieces[dst_row][dst_col]) == PIECE_COLOR_BLACK && dst_row == 7) 
+        else if (color == PIECE_COLOR_BLACK && dst_row == 7) 
         {
             board->pieces[dst_row][dst_col] = MAKE_PIECE(QUEEN, PIECE_COLOR_BLACK);
         }

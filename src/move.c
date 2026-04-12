@@ -443,5 +443,70 @@ void get_possible_moves_king(board_t *board, unsigned char color, int row, int c
             };
         }
     }
+    // Castling
+
+    // white
+    if (color == PIECE_COLOR_WHITE && row == 7 && col == 4) {
+        piece_t castle = board->pieces[7][7];
+        if (PIECE_TYPE(castle) == ROOK && PIECE_COLOR(castle) == PIECE_COLOR_WHITE
+            && target_state(board, 7, 5, color) == EMPTY
+            && target_state(board, 7, 6, color) == EMPTY) {
+
+            moves[moves_found++] = (move_t) {
+                row,
+                col,
+                7,
+                6,
+                piece,
+                board->pieces[7][6]
+            };
+        }
+        piece_t far_castle = board->pieces[7][0];
+        if (PIECE_TYPE(far_castle) == ROOK && PIECE_COLOR(far_castle) == PIECE_COLOR_WHITE
+            && target_state(board, 7, 1, color) == EMPTY
+            && target_state(board, 7, 2, color) == EMPTY
+            && target_state(board, 7, 3, color) == EMPTY) {
+
+            moves[moves_found++] = (move_t) {
+                row,
+                col,
+                7,
+                2,
+                piece,
+                board->pieces[7][2]
+            };
+        }
+    // black
+    } else if (color == PIECE_COLOR_BLACK && row == 0 && col == 4) {
+
+        piece_t castle = board->pieces[0][7];
+        if (PIECE_TYPE(castle) == ROOK && PIECE_COLOR(castle) == PIECE_COLOR_BLACK
+            && target_state(board, 0, 5, color) == EMPTY
+            && target_state(board, 0, 6, color) == EMPTY) {
+            moves[moves_found++] = (move_t) {
+                row,
+                col,
+                0,
+                6,
+                piece,
+                board->pieces[0][6]
+            };
+        }
+        piece_t far_castle = board->pieces[0][0];
+        if (PIECE_TYPE(far_castle) == ROOK && PIECE_COLOR(far_castle) == PIECE_COLOR_BLACK
+            && target_state(board, 0, 1, color) == EMPTY
+            && target_state(board, 0, 2, color) == EMPTY
+            && target_state(board, 0, 3, color) == EMPTY) {
+
+            moves[moves_found++] = (move_t) {
+                row,
+                col,
+                0,
+                2,
+                piece,
+                board->pieces[0][2]
+            };
+        }
+    }
     *num_moves = moves_found;
 }
