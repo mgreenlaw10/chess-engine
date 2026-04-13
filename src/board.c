@@ -103,10 +103,6 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
             board->pieces[dst_row][dst_col] = MAKE_PIECE(QUEEN, PIECE_COLOR_BLACK);
         }
     }
-
-    if (king_in_check(board, PIECE_COLOR_BLACK)) {
-        printf("black king in check\n");
-    }
 }
 //
 // Return the position of a specific king.
