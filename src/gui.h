@@ -17,6 +17,8 @@ typedef struct {
     int board_h;
     int selected_col; 
     int selected_row;
+    bool white_king_in_checkmate;
+    bool black_king_in_checkmate;
 } GameGuiState;
 //
 // Board colors
@@ -57,18 +59,17 @@ extern Rectangle piece_texture_regions[TEXTURE_REGION_COUNT];
 Texture2D load_piece_textures();
 
 int get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row);
-bool move_selected_piece(board_t* board, GameGuiState* gui, int dst_row, int dst_col);
 //
 // Main update loop functions
 //
 void do_main_menu_loop(ProgramState* program_state);
-void do_game_loop(board_t* board, GameGuiState* gui, Texture2D piece_textures);
+void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures);
 //
 // Draw functions called by udpate loop functions
 //
-void draw_game_gui(board_t* board, GameGuiState* gui);
+void draw_game_gui(Board* board, GameGuiState* gui);
 void draw_board (
-    board_t* board, 
+    Board* board, 
     GameGuiState* gui,
     Texture2D piece_textures, 
     float x, 

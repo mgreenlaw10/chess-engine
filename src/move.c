@@ -10,7 +10,7 @@
 
 // helper for get possible moves
 // determine state of a square (row,column) on the board
-int target_state(board_t *board, int row, int column, int color){
+int target_state(Board *board, int row, int column, int color){
     //access specific square on the board identified by its row and col
     piece_t target = board->pieces[row][column];
 
@@ -29,7 +29,7 @@ int target_state(board_t *board, int row, int column, int color){
 
 // i want to change the parameters for get possible moves
 // gonna return an array with all of the moves
-int get_possible_moves(board_t *board, int row, int column, move_t moves[], int* num_moves) {
+int get_possible_moves(Board *board, int row, int column, move_t moves[], int* num_moves) {
 
     piece_t piece = board->pieces[row][column];
 
@@ -64,7 +64,7 @@ int get_possible_moves(board_t *board, int row, int column, move_t moves[], int*
 // Check each diagonal for an enemy piece,
 // and check in front for an empty square.
 //
-void get_possible_moves_pawn(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) 
+void get_possible_moves_pawn(Board *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) 
 {
     int moves_found = 0;
     int target_row = (color == PIECE_COLOR_WHITE)? row - 1 : row + 1;
@@ -158,7 +158,7 @@ void get_possible_moves_pawn(board_t *board, unsigned char color, int row, int c
 // Find rook moves:
 // Walk each axis until you find the first piece.
 //
-void get_possible_moves_rook(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) 
+void get_possible_moves_rook(Board *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) 
 {
     int moves_found = 0;
 
@@ -232,7 +232,7 @@ void get_possible_moves_rook(board_t *board, unsigned char color, int row, int c
 // Find bishop moves:
 // Walk each diagonal until you find the first piece.
 //
-void get_possible_moves_bishop(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) 
+void get_possible_moves_bishop(Board *board, unsigned char color, int row, int column, move_t moves[], int* num_moves) 
 {
     int moves_found = 0;
     int distance;
@@ -335,7 +335,7 @@ void get_possible_moves_bishop(board_t *board, unsigned char color, int row, int
 // Find queen moves:
 // Combine rook moves and bishop moves.
 //
-void get_possible_moves_queen(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves)
+void get_possible_moves_queen(Board *board, unsigned char color, int row, int column, move_t moves[], int* num_moves)
 {
     int found_rook_moves = 0;
     int found_bishop_moves = 0;
@@ -363,7 +363,7 @@ static int knight_move_offsets[8][2] = {
 // Find knight moves:
 // Check that each square from each offset is open or has an enemy piece.
 //
-void get_possible_moves_knight(board_t *board, unsigned char color, int row, int col, move_t moves[], int* num_moves) 
+void get_possible_moves_knight(Board *board, unsigned char color, int row, int col, move_t moves[], int* num_moves) 
 {
     int moves_found = 0;
     piece_t piece = board->pieces[row][col];
@@ -414,7 +414,7 @@ static int king_move_offsets[8][2] = {
 //
 // *Need to remove moves that would result in self-check.
 //
-void get_possible_moves_king(board_t *board, unsigned char color, int row, int col, move_t moves[], int* num_moves) 
+void get_possible_moves_king(Board *board, unsigned char color, int row, int col, move_t moves[], int* num_moves) 
 {
     int moves_found = 0;
     piece_t piece = board->pieces[row][col];

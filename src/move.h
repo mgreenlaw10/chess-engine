@@ -9,11 +9,11 @@ typedef struct {
     piece_t capture_piece;
 } move_t;
 
-int get_possible_moves(board_t *board, int row, int column, move_t moves[], int* num_moves);
+int get_possible_moves(Board *board, int row, int column, move_t moves[], int* num_moves);
 
-void get_possible_moves_pawn(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
-void get_possible_moves_rook(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
-void get_possible_moves_bishop(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
-void get_possible_moves_knight(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
-void get_possible_moves_king(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
-void get_possible_moves_queen(board_t *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
+void get_possible_moves_pawn(Board *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
+void get_possible_moves_rook(Board *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
+void get_possible_moves_bishop(Board *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
+void get_possible_moves_knight(Board *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
+void get_possible_moves_king(Board *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);
+void get_possible_moves_queen(Board *board, unsigned char color, int row, int column, move_t moves[], int* num_moves);

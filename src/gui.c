@@ -100,58 +100,6 @@ static Rectangle get_source_region(piece_t piece)
     return source;
 }
 //
-// Move the selected piece to a new position.
-//
-bool move_selected_piece(board_t* board, GameGuiState* gui, int dst_row, int dst_col) {
-    //
-    // If a king is in check, skip unless 
-    // the selected piece is that king.
-    //
-    if (king_in_check(board, PIECE_COLOR_WHITE)) 
-    {
-        if (PIECE_TYPE(board->pieces[gui->selected_row][gui->selected_col]) != KING
-        || PIECE_COLOR(board->pieces[gui->selected_row][gui->selected_col]) != PIECE_COLOR_WHITE) return false;
-    }
-    if (king_in_check(board, PIECE_COLOR_BLACK))
-    {
-        if (PIECE_TYPE(board->pieces[gui->selected_row][gui->selected_col]) != KING
-        || PIECE_COLOR(board->pieces[gui->selected_row][gui->selected_col]) != PIECE_COLOR_BLACK) return false;
-    }
-    //
-    // Make sure that the destination is
-    // a valid move for the selected piece.
-    //
-    move_t moves[32];
-    int num_moves = 0;
-
-    get_possible_moves (
-        board, 
-        gui->selected_row, 
-        gui->selected_col, 
-        moves, 
-        &num_moves
-    );
-    //
-    // Check the destination against
-    // all valid moves.
-    //
-    for (int i = 0; i < num_moves; i++) 
-    {
-        if (moves[i].dest_column == dst_col 
-            && moves[i].dest_row == dst_row) 
-        {
-            move_piece(board, gui->selected_col, gui->selected_row, dst_col, dst_row);
-            board->turn_number++;
-            return true;
-        }
-    }
-    //
-    // If no valid move matched
-    // the destination, return false.
-    //
-    return false;
-}
-//
 // Main GUI draw loop for main menu.
 //
 void do_main_menu_loop(ProgramState* program_state) 
@@ -195,10 +143,9 @@ void do_main_menu_loop(ProgramState* program_state)
 //
 // Main update loop for game.
 //
-void do_game_loop(board_t* board, GameGuiState* gui, Texture2D piece_textures) {
-    //
+void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) {
+    
     // Handle mouse input
-    //
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
     {
         int clicked_col;
@@ -216,7 +163,7 @@ void do_game_loop(board_t* board, GameGuiState* gui, Texture2D piece_textures) {
         else 
         {
             // If the clicked square is not a valid move, select it instead
-            if (!move_selected_piece(board, gui, clicked_row, clicked_col)) 
+            if (try_move_piece(board, gui->selected_col, gui->selected_row, clicked_col, clicked_row) != MOVE_SUCCESS) 
             {
                 gui->selected_col = clicked_col;
                 gui->selected_row = clicked_row;
@@ -225,24 +172,38 @@ void do_game_loop(board_t* board, GameGuiState* gui, Texture2D piece_textures) {
             {
                 gui->selected_col = NO_SELECTION;
                 gui->selected_row = NO_SELECTION;
+
+                // After moving, check to see if the enemy king is in checkmate.
+                int color = PIECE_COLOR(board->pieces[clicked_row][clicked_col]) == PIECE_COLOR_WHITE? PIECE_COLOR_BLACK : PIECE_COLOR_WHITE;
+                if (king_in_checkmate(board, color))
+                {
+                    if (color == PIECE_COLOR_WHITE)
+                    {
+                        gui->white_king_in_checkmate = true;
+                    }
+                    else
+                    {
+                        gui->black_king_in_checkmate = true;
+                    }
+                }
             }   
         }
     }
-    //
+    
     // Draw board state
-    //
     BeginDrawing();
-
     ClearBackground(WHITE);
-    draw_board(board, gui, piece_textures, gui->board_x, gui->board_y, gui->board_w, gui->board_h);
+    if (!gui->white_king_in_checkmate && !gui->black_king_in_checkmate)
+    {
+        draw_board(board, gui, piece_textures, gui->board_x, gui->board_y, gui->board_w, gui->board_h);
+    }
     draw_game_gui(board, gui);
-
     EndDrawing();
 }
 //
 // Only called in do_game_loop
 //
-void draw_game_gui(board_t* board, GameGuiState* gui) 
+void draw_game_gui(Board* board, GameGuiState* gui) 
 {
     char turn_num_str[32];
     snprintf(turn_num_str, sizeof(turn_num_str), "Turn number: %d", board->turn_number);
@@ -254,12 +215,36 @@ void draw_game_gui(board_t* board, GameGuiState* gui)
         48
     };
 
+    Rectangle team_move_label_bounds = {
+        312,
+        24,
+        288,
+        48
+    };
+
     GuiLabel(turn_num_label_bounds, turn_num_str);
+    GuiLabel(team_move_label_bounds, white_move(board)? "White move" : "Black move");
+
+    // If checkmate...
+    if (gui->white_king_in_checkmate || gui->black_king_in_checkmate)
+    {
+        int screen_w = GetScreenWidth();
+        int screen_h = GetScreenHeight();
+
+        Rectangle game_result_label_bounds = {
+            screen_w / 2,
+            screen_h / 2,
+            240,
+            240
+        };
+
+        GuiLabel(game_result_label_bounds, !gui->white_king_in_checkmate? "Checkmate! White wins!" : "Checkmate! Black wins!");
+    }
 }
 //
 // Only called in do_game_loop
 //
-void draw_board(board_t* board, GameGuiState* gui, Texture2D piece_textures, float x, float y, float w, float h) 
+void draw_board(Board* board, GameGuiState* gui, Texture2D piece_textures, float x, float y, float w, float h) 
 {
     float square_w = w / 8;
     float square_h = h / 8;
