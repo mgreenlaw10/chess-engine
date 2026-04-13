@@ -1,7 +1,6 @@
 #pragma once
 
 #include "piece.h"
-
 #include <stdbool.h>
 
 typedef struct {
@@ -19,6 +18,8 @@ Board new_board();
 BoardPos find_king(Board* board, int color);
 bool king_in_check(Board* board, int color);
 bool king_in_checkmate(Board* board, int color);
+bool king_in_stalemate(Board* board, int color);
+
 bool white_move(Board* board);
 
 typedef enum {

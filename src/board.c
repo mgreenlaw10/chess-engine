@@ -220,6 +220,50 @@ bool king_in_checkmate(Board* board, int color)
     return true;
 }
 //
+// Return whether or not a king is in stalemate.
+// This is the same as checkmate but the king
+// cannot currently be in check.
+//
+bool king_in_stalemate(Board* board, int color)
+{
+    if (king_in_check(board, color))
+    {
+        return false;
+    }
+
+    BoardPos king_pos = find_king(board, color);
+
+    for (int r = 0; r < 8; r++)
+    {
+        for (int c = 0; c < 8; c++) 
+        {
+            // If piece is an ally, check each of its valid
+            // moves to see if the result is a position
+            // where the king is still in check.
+            if (PIECE_COLOR(board->pieces[r][c]) == color) 
+            {
+                move_t ally_moves[32];
+                int num_ally_moves = 0;
+                get_possible_moves(board, r, c, ally_moves, &num_ally_moves);
+
+                for (int k = 0; k < num_ally_moves; k++) 
+                {
+                    move_t ally_move = ally_moves[k];
+                    // If any move an ally can make avoids check,
+                    // the king is not in stalemate.
+                    if (!simulate_for_check(*board, ally_move.col, ally_move.row, ally_move.dst_col, ally_move.dst_row))
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    // If there is no move an ally can make that avoids check,
+    // the king is in stalemate.
+    return true;
+}
+//
 // Return whether or not it is white team's move currently.
 //
 bool white_move(Board* board) {
@@ -279,4 +323,3 @@ MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, i
     // the destination, return false.
     return INVALID_MOVE;
 }
- 
