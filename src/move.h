@@ -3,8 +3,10 @@
 #include "board.h"
 
 typedef struct {
-    int row, column; 
-    int dest_row, dest_column;
+    int row;
+    int col; 
+    int dst_row;
+    int dst_col;
     piece_t piece;
     piece_t capture_piece;
 } move_t;

@@ -162,7 +162,7 @@ bool king_in_check(Board* board, int color)
                 for (int k = 0; k < num_moves; k++) 
                 {
                     move_t move = moves[k];
-                    if (move.dest_row == king_pos.row && move.dest_column == king_pos.col) 
+                    if (move.dst_row == king_pos.row && move.dst_col == king_pos.col) 
                     {
                         return true;
                     }
@@ -207,7 +207,7 @@ bool king_in_checkmate(Board* board, int color)
                     move_t ally_move = ally_moves[k];
                     // If any move an ally can make escapes check,
                     // the king is not in checkmate.
-                    if (!simulate_for_check(*board, ally_move.column, ally_move.row, ally_move.dest_column, ally_move.dest_row))
+                    if (!simulate_for_check(*board, ally_move.col, ally_move.row, ally_move.dst_col, ally_move.dst_row))
                     {
                         return false;
                     }
@@ -268,7 +268,7 @@ MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, i
     for (int i = 0; i < num_moves; i++) 
     {   
         move_t move = moves[i];
-        if (move.dest_column == dst_col && move.dest_row == dst_row) 
+        if (move.dst_col == dst_col && move.dst_row == dst_row) 
         {
             move_piece(board, src_col, src_row, dst_col, dst_row);
             board->turn_number++;

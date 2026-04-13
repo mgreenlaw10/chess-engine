@@ -19,6 +19,7 @@ typedef struct {
     int selected_row;
     bool white_king_in_checkmate;
     bool black_king_in_checkmate;
+    bool reset_game;
 } GameGuiState;
 //
 // Board colors
@@ -58,7 +59,7 @@ extern Rectangle piece_texture_regions[TEXTURE_REGION_COUNT];
 
 Texture2D load_piece_textures();
 
-int get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row);
+bool get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row);
 //
 // Main update loop functions
 //
