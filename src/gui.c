@@ -166,13 +166,20 @@ void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) {
             else 
             {
                 // If the clicked square is not a valid move, select it instead
-                if (try_move_piece(board, gui->selected_col, gui->selected_row, clicked_col, clicked_row) != MOVE_SUCCESS) 
+                MoveResult result = try_move_piece(board, gui->selected_col, gui->selected_row, clicked_col, clicked_row);
+                if (result != MOVE_SUCCESS) 
                 {
+                    if (result == KING_IN_CHECK)
+                    {
+                        printf("failed");
+                    }
                     gui->selected_col = clicked_col;
                     gui->selected_row = clicked_row;
-                } 
+                }
+                // If the clicked square is a valid move...
                 else 
                 {
+                    //print_piece_count(board);
                     gui->selected_col = NO_SELECTION;
                     gui->selected_row = NO_SELECTION;
 
@@ -248,7 +255,7 @@ void draw_game_gui(Board* board, GameGuiState* gui)
         288,
         24
     };
-    GuiLabel(team_move_label_bounds, white_move(board)? "White move" : "Black move");
+    GuiLabel(team_move_label_bounds, board->team_to_move == PIECE_COLOR_WHITE? "White move" : "Black move");
 
     // If checkmate...
     if (gui->white_king_in_checkmate || gui->black_king_in_checkmate)

@@ -4,7 +4,6 @@
 #include <raygui.h>
 
 #include "board.h"
-#include "move.h"
 #include "program_state.h"
 //
 // GUI state (GuiState name conflicts with RayGUI)
