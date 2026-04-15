@@ -48,7 +48,6 @@ int main(void)
     SetTargetFPS(60);
 
     Board board = new_board();
-    board.turn_number = 1;
 
     GameGuiState gui = {
         .selected_col = NO_SELECTION,

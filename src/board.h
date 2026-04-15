@@ -6,6 +6,7 @@
 typedef struct {
     piece_t pieces[8][8];
     unsigned int turn_number;
+    PieceColor team_to_move;
     bool has_check; // Validity flag for team_in_check
     PieceColor team_in_check;
 } Board;

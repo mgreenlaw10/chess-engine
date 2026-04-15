@@ -179,7 +179,7 @@ void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) {
                     // After moving, check to see if the enemy king is in checkmate.
                     int color = PIECE_COLOR(board->pieces[clicked_row][clicked_col]) == PIECE_COLOR_WHITE? PIECE_COLOR_BLACK : PIECE_COLOR_WHITE;
                     if (king_in_checkmate(board, color))
-                    {
+                    {   
                         if (color == PIECE_COLOR_WHITE)
                         {
                             gui->white_king_in_checkmate = true;
@@ -275,7 +275,7 @@ void draw_board(Board* board, GameGuiState* gui, Texture2D piece_textures, float
     // Must do this before drawing so we can highlight those tiles during draw.
     //
     piece_t selected_piece = (piece_t)NONE;
-    move_t possible_moves[32];
+    Move possible_moves[32];
     int num_possible_moves = 0;
 
     if (gui->selected_col != NO_SELECTION || gui->selected_row != NO_SELECTION) 
@@ -285,12 +285,11 @@ void draw_board(Board* board, GameGuiState* gui, Texture2D piece_textures, float
 
     if (PIECE_TYPE(selected_piece) != NONE) 
     {
-        get_possible_moves (
+        num_possible_moves = get_possible_moves (
             board, 
             gui->selected_row, 
             gui->selected_col, 
-            possible_moves, 
-            &num_possible_moves
+            possible_moves
         );
     }
     //
@@ -314,7 +313,7 @@ void draw_board(Board* board, GameGuiState* gui, Texture2D piece_textures, float
             //
             for (int m = 0; m < num_possible_moves; m++) 
             {   
-                move_t move = possible_moves[m];
+                Move move = possible_moves[m];
                 if (move.dst_row == i && move.dst_col == j)
                 {
                     DrawRectangleRec(dst, board_colors[COLOR_VALID_MOVE_SQUARE]);

@@ -42,7 +42,8 @@ Board new_board()
 {
     Board board;
     initialize_pieces(board.pieces);
-    board.turn_number = 0;
+    board.turn_number = 1;
+    board.team_to_move = PIECE_COLOR_WHITE;
     return board;
 }
 //
@@ -143,6 +144,10 @@ bool king_in_check(Board* board, PieceColor color)
 {
     BoardPos king_pos = find_king(board, color);
 
+    // Act like it's {!color}'s move while testing
+    PieceColor temp = board->team_to_move;
+    board->team_to_move = !color;
+
     for (int i = 0; i < 8; i++) 
     {
         for (int j = 0; j < 8; j++) 
@@ -151,21 +156,22 @@ bool king_in_check(Board* board, PieceColor color)
             // moves to see if one contains the king.
             if (PIECE_COLOR(board->pieces[i][j]) != color) 
             {
-                move_t moves[32];
-                int num_moves = 0;
-                get_possible_moves(board, i, j, moves, &num_moves);
+                Move moves[32];
+                int num_moves = get_possible_moves(board, i, j, moves);
 
                 for (int k = 0; k < num_moves; k++) 
                 {
-                    move_t move = moves[k];
+                    Move move = moves[k];
                     if (move.dst_row == king_pos.row && move.dst_col == king_pos.col) 
                     {
+                        board->team_to_move = temp;
                         return true;
                     }
                 }
             }
         }
     }
+    board->team_to_move = temp;
     return false;
 }
 //
@@ -185,6 +191,10 @@ bool king_in_checkmate(Board* board, PieceColor color)
 
     BoardPos king_pos = find_king(board, color);
 
+    // act like it's {color}'s move while testing
+    PieceColor temp = board->team_to_move;
+    board->team_to_move = color;
+
     for (int r = 0; r < 8; r++)
     {
         for (int c = 0; c < 8; c++) 
@@ -194,17 +204,17 @@ bool king_in_checkmate(Board* board, PieceColor color)
             // where the king is still in check.
             if (PIECE_COLOR(board->pieces[r][c]) == color) 
             {
-                move_t ally_moves[32];
-                int num_ally_moves = 0;
-                get_possible_moves(board, r, c, ally_moves, &num_ally_moves);
+                Move ally_moves[32];
+                int num_ally_moves = get_possible_moves(board, r, c, ally_moves);
 
                 for (int k = 0; k < num_ally_moves; k++) 
                 {
-                    move_t ally_move = ally_moves[k];
+                    Move ally_move = ally_moves[k];
                     // If any move an ally can make escapes check,
                     // the king is not in checkmate.
                     if (!simulate_for_check(*board, ally_move.col, ally_move.row, ally_move.dst_col, ally_move.dst_row))
                     {
+                        board->team_to_move = temp;
                         return false;
                     }
                 }
@@ -213,6 +223,7 @@ bool king_in_checkmate(Board* board, PieceColor color)
     }
     // If there is no move an ally can make that escapes check,
     // the king is in checkmate.
+    board->team_to_move = temp;
     return true;
 }
 //
@@ -229,6 +240,10 @@ bool king_in_stalemate(Board* board, PieceColor color)
 
     BoardPos king_pos = find_king(board, color);
 
+    // act like it's {color}'s move while testing
+    PieceColor temp = board->team_to_move;
+    board->team_to_move = color;
+
     for (int r = 0; r < 8; r++)
     {
         for (int c = 0; c < 8; c++) 
@@ -238,17 +253,17 @@ bool king_in_stalemate(Board* board, PieceColor color)
             // where the king is still in check.
             if (PIECE_COLOR(board->pieces[r][c]) == color) 
             {
-                move_t ally_moves[32];
-                int num_ally_moves = 0;
-                get_possible_moves(board, r, c, ally_moves, &num_ally_moves);
+                Move ally_moves[32];
+                int num_ally_moves = get_possible_moves(board, r, c, ally_moves);
 
                 for (int k = 0; k < num_ally_moves; k++) 
                 {
-                    move_t ally_move = ally_moves[k];
+                    Move ally_move = ally_moves[k];
                     // If any move an ally can make avoids check,
                     // the king is not in stalemate.
                     if (!simulate_for_check(*board, ally_move.col, ally_move.row, ally_move.dst_col, ally_move.dst_row))
                     {
+                        board->team_to_move = temp;
                         return false;
                     }
                 }
@@ -257,6 +272,7 @@ bool king_in_stalemate(Board* board, PieceColor color)
     }
     // If there is no move an ally can make that avoids check,
     // the king is in stalemate.
+    board->team_to_move = temp;
     return true;
 }
 //
@@ -293,25 +309,24 @@ MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, i
         return KING_IN_CHECK;
     }
 
-    move_t moves[32];
-    int num_moves = 0;
-
-    get_possible_moves (
+    Move moves[32];
+    int num_moves = get_possible_moves (
         board, 
         src_row, 
         src_col, 
-        moves, 
-        &num_moves
+        moves
     );
     // Check the destination against
     // all valid moves.
     for (int i = 0; i < num_moves; i++) 
     {   
-        move_t move = moves[i];
+        Move move = moves[i];
         if (move.dst_col == dst_col && move.dst_row == dst_row) 
         {
             move_piece(board, src_col, src_row, dst_col, dst_row);
             board->turn_number++;
+            // Hacky way to flip enum value
+            board->team_to_move = !board->team_to_move;
             return MOVE_SUCCESS;
         }
     }
