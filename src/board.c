@@ -109,7 +109,7 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
 // The king should never be taken so
 // the return value should always be valid.
 //
-BoardPos find_king(Board* board, int color) 
+BoardPos find_king(Board* board, PieceColor color) 
 {
     for (int i = 0; i < 8; i++) 
     {
@@ -139,7 +139,7 @@ static bool simulate_for_check(Board board, int src_col, int src_row, int dst_co
 // Determine whether or not the king 
 // of the given color is in check.
 //
-bool king_in_check(Board* board, int color) 
+bool king_in_check(Board* board, PieceColor color) 
 {
     BoardPos king_pos = find_king(board, color);
 
@@ -172,7 +172,7 @@ bool king_in_check(Board* board, int color)
 // Determine whether or not the king 
 // of the given color is in checkmate.
 //
-bool king_in_checkmate(Board* board, int color) 
+bool king_in_checkmate(Board* board, PieceColor color) 
 {
     // Maybe remove this later because it
     // is probably redundant as we will likely
@@ -220,7 +220,7 @@ bool king_in_checkmate(Board* board, int color)
 // This is the same as checkmate but the king
 // cannot currently be in check.
 //
-bool king_in_stalemate(Board* board, int color)
+bool king_in_stalemate(Board* board, PieceColor color)
 {
     if (king_in_check(board, color))
     {

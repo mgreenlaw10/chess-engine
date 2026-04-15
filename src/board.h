@@ -6,6 +6,8 @@
 typedef struct {
     piece_t pieces[8][8];
     unsigned int turn_number;
+    bool has_check; // Validity flag for team_in_check
+    PieceColor team_in_check;
 } Board;
 
 typedef struct {
@@ -15,10 +17,10 @@ typedef struct {
 
 Board new_board();
 
-BoardPos find_king(Board* board, int color);
-bool king_in_check(Board* board, int color);
-bool king_in_checkmate(Board* board, int color);
-bool king_in_stalemate(Board* board, int color);
+BoardPos find_king(Board* board, PieceColor color);
+bool king_in_check(Board* board, PieceColor color);
+bool king_in_checkmate(Board* board, PieceColor color);
+bool king_in_stalemate(Board* board, PieceColor color);
 
 bool white_move(Board* board);
 
