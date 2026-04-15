@@ -7,6 +7,16 @@ typedef struct {
     piece_t pieces[8][8];
     unsigned int turn_number;
     PieceColor team_to_move;
+    unsigned char num_white_pawns;
+    unsigned char num_black_pawns;
+    unsigned char num_white_knights;
+    unsigned char num_black_knights;
+    unsigned char num_white_bishops;
+    unsigned char num_black_bishops;
+    unsigned char num_white_rooks;
+    unsigned char num_black_rooks;
+    unsigned char num_white_queens;
+    unsigned char num_black_queens;
 } Board;
 
 typedef struct {
@@ -32,5 +42,7 @@ typedef enum {
 
 void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row);
 MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row);
+
+void print_piece_count(Board* board);
 
 

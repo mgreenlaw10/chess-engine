@@ -40,12 +40,99 @@ static void initialize_pieces(piece_t pieces[8][8]) {
 //
 Board new_board() 
 {
-    Board board;
+    Board board = {
+        .turn_number = 1,
+        .team_to_move = PIECE_COLOR_WHITE,
+        .num_white_pawns = 8,
+        .num_black_pawns = 8,
+        .num_white_knights = 2,
+        .num_black_knights = 2,
+        .num_white_bishops = 2,
+        .num_black_bishops = 2,
+        .num_white_rooks = 2,
+        .num_black_rooks = 2,
+        .num_white_queens = 1,
+        .num_black_queens = 1
+    };
     initialize_pieces(board.pieces);
-    board.turn_number = 1;
-    board.team_to_move = PIECE_COLOR_WHITE;
     return board;
 }
+//
+// Remove a piece and decrement the board's
+// respective counter flag.
+//
+static void capture_piece(Board* board, int col, int row)
+{
+    PieceType type = PIECE_TYPE(board->pieces[row][col]);
+
+    if (type == NONE)
+    {
+        return;
+    }
+
+    PieceColor color = PIECE_COLOR(board->pieces[row][col]);
+
+    switch (type)
+    {
+        case PAWN:
+            if (color == PIECE_COLOR_WHITE)
+            {
+                board->num_white_pawns--;
+            }
+            else
+            {
+                board->num_black_pawns--;
+            }
+            break;
+
+        case KNIGHT:
+            if (color == PIECE_COLOR_WHITE)
+            {
+                board->num_white_knights--;
+            }
+            else
+            {
+                board->num_black_knights--;
+            }
+            break;
+
+        case BISHOP:
+            if (color == PIECE_COLOR_WHITE)
+            {
+                board->num_white_bishops--;
+            }
+            else
+            {
+                board->num_black_bishops--;
+            }
+            break;
+
+        case ROOK:
+            if (color == PIECE_COLOR_WHITE)
+            {
+                board->num_white_rooks--;
+            }
+            else
+            {
+                board->num_black_rooks--;
+            }
+            break;
+        
+        case QUEEN:
+            if (color == PIECE_COLOR_WHITE)
+            {
+                board->num_white_queens--;
+            }
+            else
+            {
+                board->num_black_queens--;
+            }
+            break;
+    }
+    // Actually remove the piece
+    board->pieces[row][col] = (piece_t)0;
+}
+
 //
 // Move a piece without checking whether
 // or not the move is actually legal.
@@ -53,6 +140,8 @@ Board new_board()
 void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row) 
 {
     piece_t captured = board->pieces[dst_row][dst_col];
+
+    capture_piece(board, dst_col, dst_row);
 
     board->pieces[dst_row][dst_col] = board->pieces[src_row][src_col];
     board->pieces[src_row][src_col] = (piece_t)NONE;
@@ -333,4 +422,18 @@ MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, i
     // If no valid move matched
     // the destination, return false.
     return INVALID_MOVE;
+}
+
+void print_piece_count(Board* board)
+{
+    printf("White pawns: %d\n", board->num_white_pawns);
+    printf("Black pawns: %d\n", board->num_black_pawns);
+    printf("White knights: %d\n", board->num_white_knights);
+    printf("Black knights: %d\n", board->num_black_knights);
+    printf("White bishops: %d\n", board->num_white_bishops);
+    printf("Black bishops: %d\n", board->num_black_bishops);
+    printf("White rooks: %d\n", board->num_white_rooks);
+    printf("Black rooks: %d\n", board->num_black_rooks);
+    printf("White queens: %d\n", board->num_white_queens);
+    printf("Black queens: %d\n", board->num_black_queens);
 }

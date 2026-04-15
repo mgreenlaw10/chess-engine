@@ -170,9 +170,11 @@ void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) {
                 {
                     gui->selected_col = clicked_col;
                     gui->selected_row = clicked_row;
-                } 
+                }
+                // If the clicked square is a valid move...
                 else 
                 {
+                    //print_piece_count(board);
                     gui->selected_col = NO_SELECTION;
                     gui->selected_row = NO_SELECTION;
 
