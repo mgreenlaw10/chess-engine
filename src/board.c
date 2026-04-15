@@ -365,27 +365,19 @@ bool king_in_stalemate(Board* board, PieceColor color)
     return true;
 }
 //
-// Return whether or not it is white team's move currently.
-//
-bool white_move(Board* board) {
-    return board->turn_number % 2 != 0;
-}
-//
 // Try to move a piece and get back a result
 // value describing whether the operation
 // succeeded or why it failed.
 //
 MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row) 
 {
-    // If the wrong color is selected...
-    if (PIECE_COLOR(board->pieces[src_row][src_col]) == PIECE_COLOR_WHITE) 
+    // If moving to the same square...
+    if (src_col == dst_col && src_row == dst_row)
     {
-        if (!white_move(board)) 
-        {
-            return WRONG_TEAM;
-        }
+        return INVALID_MOVE;
     }
-    else if (white_move(board)) 
+    // If the wrong color is selected...
+    if (PIECE_COLOR(board->pieces[src_row][src_col]) != board->team_to_move) 
     {
         return WRONG_TEAM;
     }

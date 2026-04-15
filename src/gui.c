@@ -250,7 +250,7 @@ void draw_game_gui(Board* board, GameGuiState* gui)
         288,
         24
     };
-    GuiLabel(team_move_label_bounds, white_move(board)? "White move" : "Black move");
+    GuiLabel(team_move_label_bounds, board->team_to_move == PIECE_COLOR_WHITE? "White move" : "Black move");
 
     // If checkmate...
     if (gui->white_king_in_checkmate || gui->black_king_in_checkmate)

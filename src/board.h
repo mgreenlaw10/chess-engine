@@ -5,8 +5,13 @@
 
 typedef struct {
     piece_t pieces[8][8];
+
     unsigned int turn_number;
     PieceColor team_to_move;
+    // The team in check is necessarily the team to move,
+    // so this tells you whether team_to_move is in check or not.
+    bool team_in_check;
+
     unsigned char num_white_pawns;
     unsigned char num_black_pawns;
     unsigned char num_white_knights;
@@ -30,8 +35,6 @@ BoardPos find_king(Board* board, PieceColor color);
 bool king_in_check(Board* board, PieceColor color);
 bool king_in_checkmate(Board* board, PieceColor color);
 bool king_in_stalemate(Board* board, PieceColor color);
-
-bool white_move(Board* board);
 
 typedef enum {
     MOVE_SUCCESS,
