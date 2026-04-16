@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #define RAYGUI_IMPLEMENTATION
-#include <raygui.h>
+#include "raygui.h"
 
 Color board_colors[COLOR_COUNT] = {
     [COLOR_DARK_SQUARE] = {181, 136, 99, 255},

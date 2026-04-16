@@ -1,7 +1,7 @@
 #pragma once
 
 #include <raylib.h>
-#include <raygui.h>
+#include "raygui.h"
 
 #include "board.h"
 #include "move.h"

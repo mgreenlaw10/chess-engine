@@ -18,8 +18,8 @@ int main(void)
 {
     ProgramState state = MAIN_MENU;
 
-    int window_w = 900;
-    int window_h = 900;
+    int window_w = 600;
+    int window_h = 600;
     int board_w = window_w * 0.8;
     int board_h = window_h * 0.8;
     int board_x = window_w * 0.1;
