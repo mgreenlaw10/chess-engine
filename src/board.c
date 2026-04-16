@@ -702,6 +702,26 @@ int get_possible_moves(Board *board, int row, int col, Move moves[])
     return 0;
 }
 //
+//
+// Adds a move as long as it doesn't put you in check.
+//
+static bool add_if_valid_move(Board* board, int src_col, int src_row, int dst_col, int dst_row, Move move_list[], int index)
+{
+    if (!simulate_for_check(*board, src_col, src_row, dst_col, dst_row))
+    {
+        move_list[index] = (Move) {
+            src_row, 
+            src_col,
+            dst_row, 
+            dst_col,
+            board->pieces[src_row][src_col],
+            board->pieces[dst_row][dst_col]
+        };
+        return true;
+    }
+    return false;
+}
+//
 // Find pawn moves:
 // Check each diagonal for an enemy piece,
 // and check in front for an empty square.
@@ -726,14 +746,11 @@ int get_possible_moves_pawn(Board *board, PieceColor color, int row, int col, Mo
         result = target_state(board, target_row, col - 1, color);
         if (result == ENEMY)
         {
-            moves[moves_found++] = (Move) {
-                row,
-                col,
-                target_row,
-                col - 1,
-                board->pieces[row][col],
-                board->pieces[target_row][col - 1]
-            };
+            if (add_if_valid_move(board, col, row, col - 1, target_row, moves, moves_found))
+            {
+                moves_found++;
+            }
+            
         }
     }
 
@@ -743,53 +760,40 @@ int get_possible_moves_pawn(Board *board, PieceColor color, int row, int col, Mo
         result = target_state(board, target_row, col + 1, color);
         if (result == ENEMY)
         {
-            moves[moves_found++] = (Move) {
-                row,
-                col,
-                target_row,
-                col + 1,
-                board->pieces[row][col],
-                board->pieces[target_row][col + 1]
-            };
+            if (add_if_valid_move(board, col, row, col + 1, target_row, moves, moves_found))
+            {
+                moves_found++;
+            }
         }
     }
 
     // check in front for empty space
     result = target_state(board, target_row, col, color);
-    if (result == EMPTY) {
-        moves[moves_found++] = (Move) {
-            row,
-            col,
-            target_row,
-            col,
-            board->pieces[row][col],
-            board->pieces[target_row][col]
-        };
+    if (result == EMPTY) 
+    {
+        if (add_if_valid_move(board, col, row, col, target_row, moves, moves_found))
+        {
+            moves_found++;
+        }
     }
 
     // SPECIAL MOVES:
     // First move pawn can move 2 squares ahead
         // if white row = 6
         // if black row = 1
-    if (color == PIECE_COLOR_WHITE && row == 6 && target_state(board, row - 2, col, color) == EMPTY){
-        moves[moves_found++] = (Move) {
-                row,
-                col,
-                row - 2,
-                col,
-                board->pieces[row][col],
-                board->pieces[row - 2][col]
-            };
+    if (color == PIECE_COLOR_WHITE && row == 6 && target_state(board, row - 2, col, color) == EMPTY)
+    {
+        if (add_if_valid_move(board, col, row, col, row - 2, moves, moves_found))
+        {
+            moves_found++;
+        }
     }
-    if (color == PIECE_COLOR_BLACK && row == 1 && target_state(board, row + 2, col, color) == EMPTY){
-        moves[moves_found++] = (Move) {
-                row,
-                col,
-                row + 2,
-                col,
-                board->pieces[row][col],
-                board->pieces[row + 2][col]
-            };
+    if (color == PIECE_COLOR_BLACK && row == 1 && target_state(board, row + 2, col, color) == EMPTY)
+    {
+        if (add_if_valid_move(board, col, row, col, row + 2, moves, moves_found))
+        {
+            moves_found++;
+        }
     }
     
     return moves_found;
@@ -807,14 +811,10 @@ int get_possible_moves_rook(Board *board, PieceColor color, int row, int col, Mo
     {
         int result = target_state(board, row, i, color);
         if (result == TAKEN) break;
-        moves[moves_found++] = (Move) {
-            row,
-            col,
-            row,
-            i,
-            board->pieces[row][col],
-            board->pieces[row][i]
-        };
+        if (add_if_valid_move(board, col, row, i, row, moves, moves_found))
+        {
+            moves_found++;
+        }
         if (result == ENEMY) break;
     }
 
@@ -823,14 +823,10 @@ int get_possible_moves_rook(Board *board, PieceColor color, int row, int col, Mo
     {
         int result = target_state(board, row, i, color);
         if (result == TAKEN) break;
-        moves[moves_found++] = (Move) {
-            row,
-            col,
-            row,
-            i,
-            board->pieces[row][col],
-            board->pieces[row][i]
-        };
+        if (add_if_valid_move(board, col, row, i, row, moves, moves_found))
+        {
+            moves_found++;
+        }
         if (result == ENEMY) break;
     }
 
@@ -839,14 +835,10 @@ int get_possible_moves_rook(Board *board, PieceColor color, int row, int col, Mo
     {
         int result = target_state(board, i, col, color);
         if (result == TAKEN) break;
-        moves[moves_found++] = (Move) {
-            row,
-            col,
-            i,
-            col,
-            board->pieces[row][col],
-            board->pieces[i][col]
-        };
+        if (add_if_valid_move(board, col, row, col, i, moves, moves_found))
+        {
+            moves_found++;
+        }
         if (result == ENEMY) break;
     }
 
@@ -855,14 +847,10 @@ int get_possible_moves_rook(Board *board, PieceColor color, int row, int col, Mo
     {
         int result = target_state(board, i, col, color);
         if (result == TAKEN) break;
-        moves[moves_found++] = (Move) {
-            row,
-            col,
-            i,
-            col,
-            board->pieces[row][col],
-            board->pieces[i][col]
-        }; 
+        if (add_if_valid_move(board, col, row, col, i, moves, moves_found))
+        {
+            moves_found++;
+        }
         if (result == ENEMY) break;
     }
 
@@ -889,14 +877,10 @@ int get_possible_moves_bishop(Board *board, PieceColor color, int row, int col, 
         int result = target_state(board, target_row, target_col, color);
 
         if (result == TAKEN) break;
-        moves[moves_found++] = (Move) {
-            row,
-            col,
-            target_row,
-            target_col,
-            board->pieces[row][col],
-            board->pieces[target_row][target_col]
-        };
+        if (add_if_valid_move(board, col, row, target_col, target_row, moves, moves_found))
+        {
+            moves_found++;
+        }
         if (result == ENEMY) break;
     }
 
@@ -912,14 +896,10 @@ int get_possible_moves_bishop(Board *board, PieceColor color, int row, int col, 
         int result = target_state(board, target_row, target_col, color);
 
         if (result == TAKEN) break;
-        moves[moves_found++] = (Move) {
-            row,
-            col,
-            target_row,
-            target_col,
-            board->pieces[row][col],
-            board->pieces[target_row][target_col]
-        };
+        if (add_if_valid_move(board, col, row, target_col, target_row, moves, moves_found))
+        {
+            moves_found++;
+        }
         if (result == ENEMY) break;
     }
 
@@ -935,14 +915,10 @@ int get_possible_moves_bishop(Board *board, PieceColor color, int row, int col, 
         int result = target_state(board, target_row, target_col, color);
 
         if (result == TAKEN) break;
-        moves[moves_found++] = (Move) {
-            row,
-            col,
-            target_row,
-            target_col,
-            board->pieces[row][col],
-            board->pieces[target_row][target_col]
-        };
+        if (add_if_valid_move(board, col, row, target_col, target_row, moves, moves_found))
+        {
+            moves_found++;
+        }
         if (result == ENEMY) break;
     }
 
@@ -958,14 +934,10 @@ int get_possible_moves_bishop(Board *board, PieceColor color, int row, int col, 
         int result = target_state(board, target_row, target_col, color);
 
         if (result == TAKEN) break;
-        moves[moves_found++] = (Move) {
-            row,
-            col,
-            target_row,
-            target_col,
-            board->pieces[row][col],
-            board->pieces[target_row][target_col]
-        };
+        if (add_if_valid_move(board, col, row, target_col, target_row, moves, moves_found))
+        {
+            moves_found++;
+        }
         if (result == ENEMY) break;
     }
 
@@ -1006,14 +978,10 @@ int get_possible_moves_knight(Board *board, PieceColor color, int row, int col, 
 
         if (result == EMPTY || result == ENEMY) 
         {
-            moves[moves_found++] = (Move) {
-                row,
-                col,
-                target_row,
-                target_col,
-                piece,
-                board->pieces[target_row][target_col]
-            };
+            if (add_if_valid_move(board, col, row, target_col, target_row, moves, moves_found))
+            {
+                moves_found++;
+            }
         }
     }
     return moves_found;
@@ -1033,10 +1001,8 @@ static int king_move_offsets[8][2] = {
     { 1,  1}
 };
 //
-// Find king moves:
-// Check that each square from each offset is open or has an enemy piece.
 //
-// *Need to remove moves that would result in self-check.
+//
 //
 int get_possible_moves_king(Board *board, PieceColor color, int row, int col, Move moves[]) 
 {
@@ -1057,17 +1023,10 @@ int get_possible_moves_king(Board *board, PieceColor color, int row, int col, Mo
 
         if (result == EMPTY || result == ENEMY) 
         {
-            //if (!board->team_in_check || !simulate_for_check(*board, col, row, target_col, target_row))
-            //{
-                moves[moves_found++] = (Move) {
-                    row,
-                    col,
-                    target_row,
-                    target_col,
-                    piece,
-                    board->pieces[target_row][target_col]
-                };
-            //}
+            if (add_if_valid_move(board, col, row, target_col, target_row, moves, moves_found))
+            {
+                moves_found++;
+            }
         }
     }
     // Castling
@@ -1078,15 +1037,18 @@ int get_possible_moves_king(Board *board, PieceColor color, int row, int col, Mo
         if (PIECE_TYPE(castle) == ROOK && PIECE_COLOR(castle) == PIECE_COLOR_WHITE
             && target_state(board, 7, 5, color) == EMPTY
             && target_state(board, 7, 6, color) == EMPTY) {
-
-            moves[moves_found++] = (Move) {
-                row,
-                col,
-                7,
-                6,
-                piece,
-                board->pieces[7][6]
-            };
+            
+            if (!board->team_in_check || !simulate_for_check(*board, col, row, 7, 6))
+            {
+                moves[moves_found++] = (Move) {
+                    row,
+                    col,
+                    7,
+                    6,
+                    piece,
+                    board->pieces[7][6]
+                };
+            }
         }
         piece_t far_castle = board->pieces[7][0];
         if (PIECE_TYPE(far_castle) == ROOK && PIECE_COLOR(far_castle) == PIECE_COLOR_WHITE
