@@ -4,6 +4,8 @@
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
 
+#include "test.h"
+
 Color board_colors[COLOR_COUNT] = {
     [COLOR_DARK_SQUARE] = {181, 136, 99, 255},
     [COLOR_LIGHT_SQUARE] = {240, 217, 181, 255},
@@ -166,7 +168,9 @@ void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) {
             else 
             {
                 // If the clicked square is not a valid move, select it instead
-                MoveResult result = try_move_piece(board, gui->selected_col, gui->selected_row, clicked_col, clicked_row);
+                MoveResult result;
+                result = try_move_piece(board, gui->selected_col, gui->selected_row, clicked_col, clicked_row);
+                
                 if (result != MOVE_SUCCESS) 
                 {
                     if (result == KING_IN_CHECK)
