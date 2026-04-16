@@ -8,9 +8,14 @@ typedef struct {
 
     unsigned int turn_number;
     PieceColor team_to_move;
+
     // The team in check is necessarily the team to move,
     // so this tells you whether team_to_move is in check or not.
     bool team_in_check;
+
+    // The square that a pawn can move to
+    // in order to perform en passant, if it's possible.
+    BoardPos en_passant_opportunity;
 
     unsigned char num_white_pawns;
     unsigned char num_black_pawns;
@@ -22,6 +27,7 @@ typedef struct {
     unsigned char num_black_rooks;
     unsigned char num_white_queens;
     unsigned char num_black_queens;
+
 } Board;
 
 typedef struct {
@@ -29,12 +35,7 @@ typedef struct {
     int col;
 } BoardPos;
 
-Board new_board();
-
-BoardPos find_king(Board* board, PieceColor color);
-bool king_in_check(Board* board, PieceColor color);
-bool king_in_checkmate(Board* board, PieceColor color);
-bool king_in_stalemate(Board* board, PieceColor color);
+BoardPos INVALID_POS = {-1, -1};
 
 typedef enum {
     MOVE_SUCCESS,
@@ -42,6 +43,13 @@ typedef enum {
     KING_IN_CHECK,
     INVALID_MOVE
 } MoveResult;
+
+Board new_board();
+
+BoardPos find_king(Board* board, PieceColor color);
+bool king_in_check(Board* board, PieceColor color);
+bool king_in_checkmate(Board* board, PieceColor color);
+bool king_in_stalemate(Board* board, PieceColor color);
 
 void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row);
 MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row);

@@ -635,6 +635,10 @@ MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, i
         if (move.dst_col == dst_col && move.dst_row == dst_row) 
         {
             move_piece(board, src_col, src_row, dst_col, dst_row);
+            //
+            // If the move was a pawn and it was a double move,
+            // create an en passant opportunity
+            //
             board->turn_number++;
             // Hacky way to flip enum value
             board->team_to_move = !board->team_to_move;
