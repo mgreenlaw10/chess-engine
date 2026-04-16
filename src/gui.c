@@ -4,6 +4,8 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
+#include "test.h"
+
 Color board_colors[COLOR_COUNT] = {
     [COLOR_DARK_SQUARE] = {181, 136, 99, 255},
     [COLOR_LIGHT_SQUARE] = {240, 217, 181, 255},
@@ -26,7 +28,7 @@ Rectangle piece_texture_regions[TEXTURE_REGION_COUNT] = {
     [TEXTURE_REGION_BLACK_KING] = {60, 0, 60, 60}
 };
 
-int get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row) 
+bool get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, int* col, int* row) 
 {
     int x = GetMouseX();
     int y = GetMouseY();
@@ -34,11 +36,12 @@ int get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, i
     int ly = y - board_y;
 
     if (lx < 0 || ly < 0 || lx > board_w || ly > board_h) {
-        return 1;
+        return false;
     }
 
     *col = lx * 8 / board_w;
     *row = ly * 8 / board_h;
+    return true;
 }
 
 Texture2D load_piece_textures() 
@@ -150,43 +153,55 @@ void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) {
     {
         int clicked_col;
         int clicked_row;
-        get_square_under_mouse(gui->board_x, gui->board_y, gui->board_w, gui->board_h, &clicked_col, &clicked_row);
 
-        // If no piece is currently selected, select the clicked square
-        if (gui->selected_col == NO_SELECTION || gui->selected_row == NO_SELECTION) 
+        // Only if a board square was clicked...
+        if (get_square_under_mouse(gui->board_x, gui->board_y, gui->board_w, gui->board_h, &clicked_col, &clicked_row))
         {
-            gui->selected_col = clicked_col;
-            gui->selected_row = clicked_row;
-        }
-        // If a piece is selected, move it to the clicked square
-        // only if the clicked square is a valid move
-        else 
-        {
-            // If the clicked square is not a valid move, select it instead
-            if (try_move_piece(board, gui->selected_col, gui->selected_row, clicked_col, clicked_row) != MOVE_SUCCESS) 
+            // If no piece is currently selected, select the clicked square
+            if (gui->selected_col == NO_SELECTION || gui->selected_row == NO_SELECTION) 
             {
                 gui->selected_col = clicked_col;
                 gui->selected_row = clicked_row;
-            } 
+            }
+            // If a piece is selected, move it to the clicked square
+            // only if the clicked square is a valid move
             else 
             {
-                gui->selected_col = NO_SELECTION;
-                gui->selected_row = NO_SELECTION;
-
-                // After moving, check to see if the enemy king is in checkmate.
-                int color = PIECE_COLOR(board->pieces[clicked_row][clicked_col]) == PIECE_COLOR_WHITE? PIECE_COLOR_BLACK : PIECE_COLOR_WHITE;
-                if (king_in_checkmate(board, color))
+                // If the clicked square is not a valid move, select it instead
+                MoveResult result;
+                result = try_move_piece(board, gui->selected_col, gui->selected_row, clicked_col, clicked_row);
+                
+                if (result != MOVE_SUCCESS) 
                 {
-                    if (color == PIECE_COLOR_WHITE)
+                    if (result == KING_IN_CHECK)
                     {
-                        gui->white_king_in_checkmate = true;
+                        printf("failed");
                     }
-                    else
-                    {
-                        gui->black_king_in_checkmate = true;
-                    }
+                    gui->selected_col = clicked_col;
+                    gui->selected_row = clicked_row;
                 }
-            }   
+                // If the clicked square is a valid move...
+                else 
+                {
+                    //print_piece_count(board);
+                    gui->selected_col = NO_SELECTION;
+                    gui->selected_row = NO_SELECTION;
+
+                    // After moving, check to see if the enemy king is in checkmate.
+                    int color = PIECE_COLOR(board->pieces[clicked_row][clicked_col]) == PIECE_COLOR_WHITE? PIECE_COLOR_BLACK : PIECE_COLOR_WHITE;
+                    if (king_in_checkmate(board, color))
+                    {   
+                        if (color == PIECE_COLOR_WHITE)
+                        {
+                            gui->white_king_in_checkmate = true;
+                        }
+                        else
+                        {
+                            gui->black_king_in_checkmate = true;
+                        }
+                    }
+                }   
+            }
         }
     }
     
@@ -205,32 +220,50 @@ void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) {
 //
 void draw_game_gui(Board* board, GameGuiState* gui) 
 {
+    GuiSetStyle(DEFAULT, TEXT_SIZE, 16);
+
+    int screen_w = GetScreenWidth();
+    int screen_h = GetScreenHeight();
+
+    // Get turn number as string
     char turn_num_str[32];
     snprintf(turn_num_str, sizeof(turn_num_str), "Turn number: %d", board->turn_number);
 
+    // Reset button
+    int reset_button_w = 120;
+    int reset_button_h = 24;
+    Rectangle reset_button_bounds = {
+        screen_w - 24 - reset_button_w,
+        24,
+        reset_button_w,
+        reset_button_h
+    };
+    if (GuiButton(reset_button_bounds, "Reset Game"))
+    {
+        gui->reset_game = true;
+    }
+
+    // Turn number label
     Rectangle turn_num_label_bounds = {
         24,
         24,
         288,
-        48
+        24
     };
+    GuiLabel(turn_num_label_bounds, turn_num_str);
 
+    // Whose move is it?
     Rectangle team_move_label_bounds = {
         312,
         24,
         288,
-        48
+        24
     };
-
-    GuiLabel(turn_num_label_bounds, turn_num_str);
-    GuiLabel(team_move_label_bounds, white_move(board)? "White move" : "Black move");
+    GuiLabel(team_move_label_bounds, board->team_to_move == PIECE_COLOR_WHITE? "White move" : "Black move");
 
     // If checkmate...
     if (gui->white_king_in_checkmate || gui->black_king_in_checkmate)
     {
-        int screen_w = GetScreenWidth();
-        int screen_h = GetScreenHeight();
-
         Rectangle game_result_label_bounds = {
             screen_w / 2,
             screen_h / 2,
@@ -253,23 +286,21 @@ void draw_board(Board* board, GameGuiState* gui, Texture2D piece_textures, float
     // Must do this before drawing so we can highlight those tiles during draw.
     //
     piece_t selected_piece = (piece_t)NONE;
-    move_t possible_moves[32];
+    Move possible_moves[32];
     int num_possible_moves = 0;
 
-    if (gui->selected_col != NO_SELECTION || 
-        gui->selected_row != NO_SELECTION) 
+    if (gui->selected_col != NO_SELECTION || gui->selected_row != NO_SELECTION) 
     {
         selected_piece = board->pieces[gui->selected_row][gui->selected_col];
     }
 
     if (PIECE_TYPE(selected_piece) != NONE) 
     {
-        get_possible_moves (
+        num_possible_moves = get_possible_moves (
             board, 
             gui->selected_row, 
             gui->selected_col, 
-            possible_moves, 
-            &num_possible_moves
+            possible_moves
         );
     }
     //
@@ -293,10 +324,10 @@ void draw_board(Board* board, GameGuiState* gui, Texture2D piece_textures, float
             //
             for (int m = 0; m < num_possible_moves; m++) 
             {   
-                move_t move = possible_moves[m];
-                if (move.dest_row == i && move.dest_column == j)
+                Move move = possible_moves[m];
+                if (move.dst_row == i && move.dst_col == j)
                 {
-                    DrawRectangleRec(dst, board_colors[COLOR_SELECTED_SQUARE]);
+                    DrawRectangleRec(dst, board_colors[COLOR_VALID_MOVE_SQUARE]);
                 }
             }
             //
@@ -304,7 +335,7 @@ void draw_board(Board* board, GameGuiState* gui, Texture2D piece_textures, float
             //
             if (gui->selected_row == i && gui->selected_col == j) 
             {
-                DrawRectangleRec(dst, board_colors[COLOR_VALID_MOVE_SQUARE]);
+                DrawRectangleRec(dst, board_colors[COLOR_SELECTED_SQUARE]);
             }
             //
             // Draw the piece on the square.
