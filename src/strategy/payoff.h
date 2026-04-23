@@ -10,7 +10,8 @@
     // 1. Material (value per piece)
     // 2. Mobility (number of legal moves the player has)
 
-int payoff(Board* board, int color);
+int payoff(Board* board);
 
 int compute_material_score(Board* board);
 int compute_mobility_score(Board* board);
+
