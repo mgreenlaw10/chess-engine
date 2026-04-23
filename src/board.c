@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <stdlib.h>
 #include "board.h"
 
 //
@@ -392,48 +392,6 @@ bool king_in_check(Board* board, PieceColor color)
     return false;
 }
 
-//
-// Determine whether or not the king 
-// of the given color is in check.
-//
-// bool king_in_check(Board* board, PieceColor color) 
-// {
-//     BoardPos king_pos = find_king(board, color);
-
-//     // Act like it's {!color}'s move while testing
-//     PieceColor temp = board->team_to_move;
-//     board->team_to_move = !color;
-
-//     for (int i = 0; i < 8; i++) 
-//     {
-//         for (int j = 0; j < 8; j++) 
-//         {
-//             // If piece is an enemy, check its valid
-//             // moves to see if one contains the king.
-//             if (PIECE_COLOR(board->pieces[i][j]) != color) 
-//             {
-//                 Move moves[32];
-//                 int num_moves = get_possible_moves(board, i, j, moves);
-
-//                 for (int k = 0; k < num_moves; k++) 
-//                 {
-//                     Move move = moves[k];
-//                     if (move.dst_row == king_pos.row && move.dst_col == king_pos.col) 
-//                     {
-//                         board->team_to_move = temp;
-//                         return true;
-//                     }
-//                 }
-//             }
-//         }
-//     }
-//     board->team_to_move = temp;
-//     return false;
-// }
-//
-// Determine whether or not the king 
-// of the given color is in checkmate.
-//
 bool king_in_checkmate(Board* board, PieceColor color) 
 {
     // Maybe remove this later because it
@@ -539,8 +497,25 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
 {
     piece_t captured = board->pieces[dst_row][dst_col];
 
-    capture_piece(board, dst_col, dst_row);
-
+    // If move is an en passant, capture
+    // the corresponding pawn.
+    if (board->en_passant_opportunity.row == dst_row && board->en_passant_opportunity.col == dst_col)
+    {    
+        if (board->en_passant_opportunity.row == 2)
+        {
+            capture_piece(board, dst_col, dst_row + 1);
+        }
+        else
+        {
+            capture_piece(board, dst_col, dst_row - 1);
+        }
+    }
+    // Else, capture the piece under the destination square.
+    else 
+    {
+        capture_piece(board, dst_col, dst_row);
+    }
+    
     board->pieces[dst_row][dst_col] = board->pieces[src_row][src_col];
     board->pieces[src_row][src_col] = (piece_t)NONE;
 
@@ -556,23 +531,28 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
         board->pieces[src_row][7] = (piece_t)NONE;
         
     }
+
     // Queen
     if (type == KING && src_row == dst_row && (src_row == 7 || src_row == 0) && src_col == 4 && dst_col == 2) 
     {
         board->pieces[src_row][3] = board->pieces[src_row][0];
         board->pieces[src_row][0] = (piece_t)NONE;
     }
+
     if (type == ROOK && src_row == dst_row && (src_row == 7 || src_row == 0) && PIECE_TYPE(captured) == NONE) 
     {
         piece_t king = board->pieces[src_row][4];
         
         if (PIECE_TYPE(king) == KING && PIECE_COLOR(king) == color) 
         {
-            if (src_col == 7 && dst_col == 5 && PIECE_TYPE(board->pieces[src_row][6]) == NONE) {
+            if (src_col == 7 && dst_col == 5 && PIECE_TYPE(board->pieces[src_row][6]) == NONE) 
+            {
                 board->pieces[src_row][6] = king;
                 board->pieces[src_row][4] = (piece_t)NONE;
 
-            } else if (src_col == 0 && dst_col == 3 && PIECE_TYPE(board->pieces[src_row][2]) == NONE) {
+            } 
+            else if (src_col == 0 && dst_col == 3 && PIECE_TYPE(board->pieces[src_row][2]) == NONE)
+            {
                 board->pieces[src_row][2] = king;
                 board->pieces[src_row][4] = (piece_t)NONE;
             }
@@ -585,11 +565,36 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
         if (color == PIECE_COLOR_WHITE && dst_row == 0) 
         {
             board->pieces[dst_row][dst_col] = MAKE_PIECE(QUEEN, PIECE_COLOR_WHITE);
+            board->num_white_pawns--;
+            board->num_white_queens++;
         }
         else if (color == PIECE_COLOR_BLACK && dst_row == 7) 
         {
             board->pieces[dst_row][dst_col] = MAKE_PIECE(QUEEN, PIECE_COLOR_BLACK);
+            board->num_black_pawns--;
+            board->num_black_queens++;
         }
+    }
+
+    // If the move was a pawn and it was a double move,
+    // create an en passant opportunity.
+    if (PIECE_TYPE(board->pieces[dst_row][dst_col]) == PAWN && abs(dst_row - src_row) == 2)
+    {
+        if (dst_row == 3)
+        {
+            board->en_passant_opportunity.row = dst_row - 1;
+            board->en_passant_opportunity.col = dst_col;
+        }
+        else
+        {
+            board->en_passant_opportunity.row = dst_row + 1;
+            board->en_passant_opportunity.col = dst_col;
+        }
+    }
+    else
+    {
+        board->en_passant_opportunity.row = -1;
+        board->en_passant_opportunity.col = -1;
     }
 
     board->team_in_check = king_in_check(board, !board->team_to_move);
@@ -635,12 +640,8 @@ MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, i
         if (move.dst_col == dst_col && move.dst_row == dst_row) 
         {
             move_piece(board, src_col, src_row, dst_col, dst_row);
-            //
-            // If the move was a pawn and it was a double move,
-            // create an en passant opportunity
-            //
+
             board->turn_number++;
-            // Hacky way to flip enum value
             board->team_to_move = !board->team_to_move;
             return MOVE_SUCCESS;
         }
@@ -748,7 +749,7 @@ int get_possible_moves_pawn(Board *board, PieceColor color, int row, int col, Mo
     if (col - 1 > 0) 
     {
         result = target_state(board, target_row, col - 1, color);
-        if (result == ENEMY)
+        if (result == ENEMY || (board->en_passant_opportunity.row == target_row && board->en_passant_opportunity.col == col - 1))
         {
             if (add_if_valid_move(board, col, row, col - 1, target_row, moves, moves_found))
             {
@@ -762,7 +763,7 @@ int get_possible_moves_pawn(Board *board, PieceColor color, int row, int col, Mo
     if (col + 1 < 8) 
     {
         result = target_state(board, target_row, col + 1, color);
-        if (result == ENEMY)
+        if (result == ENEMY || (board->en_passant_opportunity.row == target_row && board->en_passant_opportunity.col == col + 1))
         {
             if (add_if_valid_move(board, col, row, col + 1, target_row, moves, moves_found))
             {

@@ -4,6 +4,11 @@
 #include <stdbool.h>
 
 typedef struct {
+    int row;
+    int col;
+} BoardPos;
+
+typedef struct {
     piece_t pieces[8][8];
 
     unsigned int turn_number;
@@ -29,13 +34,6 @@ typedef struct {
     unsigned char num_black_queens;
 
 } Board;
-
-typedef struct {
-    int row;
-    int col;
-} BoardPos;
-
-BoardPos INVALID_POS = {-1, -1};
 
 typedef enum {
     MOVE_SUCCESS,
