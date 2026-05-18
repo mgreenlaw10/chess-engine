@@ -43,6 +43,7 @@ typedef enum {
 } MoveResult;
 
 Board new_board();
+Board clone_board(Board* board);
 
 BoardPos find_king(Board* board, PieceColor color);
 bool king_in_check(Board* board, PieceColor color);

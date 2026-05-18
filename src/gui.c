@@ -5,6 +5,7 @@
 #include "raygui.h"
 
 #include "test.h"
+#include "strategy/move_tree.h"
 
 Color board_colors[COLOR_COUNT] = {
     [COLOR_DARK_SQUARE] = {181, 136, 99, 255},
@@ -146,8 +147,29 @@ void do_main_menu_loop(ProgramState* program_state)
 //
 // Main update loop for game.
 //
-void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) {
-    
+void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) 
+{
+    if (board->team_to_move == PIECE_COLOR_BLACK)
+    {
+        Move move = best_move(board, 3);
+        move_piece(board, move.col, move.row, move.dst_col, move.dst_row);
+
+        // After moving, check to see if the enemy king is in checkmate.
+        int color = PIECE_COLOR(board->pieces[move.dst_row][move.dst_col]) == PIECE_COLOR_WHITE? PIECE_COLOR_BLACK : PIECE_COLOR_WHITE;
+        if (king_in_checkmate(board, color))
+        {   
+            if (color == PIECE_COLOR_WHITE)
+            {
+                gui->white_king_in_checkmate = true;
+            }
+            else
+            {
+                gui->black_king_in_checkmate = true;
+            }
+        }
+
+        goto draw;
+    }
     // Handle mouse input
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
     {
@@ -204,6 +226,8 @@ void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) {
             }
         }
     }
+
+    draw:
     
     // Draw board state
     BeginDrawing();

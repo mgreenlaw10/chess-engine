@@ -5,22 +5,15 @@
 
 static int collect_all_moves(Board *board, PieceColor color, Move moves[])
 {
-    int total = 0;
-
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-
-            piece_t piece = board->pieces[row][col];
-    
-            Move piece_moves[32];
-            int found = get_possible_moves(board, row, col, piece_moves);
-
-            for (int i = 0; i < found; i++) {
-                moves[total++] = piece_moves[i];
-            }
+    int moves_found = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            moves_found += get_possible_moves(board, i, j, moves + moves_found);
         }
     }
-    return total;
+    return moves_found;
 }
 
 // check for checkmate or stalemate for the peice thats about to move
@@ -124,7 +117,7 @@ Move best_move(Board* board, int depth) {
 
     for (int i = 0; i < total_moves; i++) {
         // make a copy of the board (remove this if we have an undo)
-        Board copy = *board;
+        Board copy = clone_board(board);
         move_piece(&copy, moves[i].col, moves[i].row, moves[i].dst_col, moves[i].dst_row);
 
         // after our move, call alpha beta for the opponent

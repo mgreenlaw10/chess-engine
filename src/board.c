@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "board.h"
 
 //
@@ -70,6 +71,32 @@ Board new_board()
     };
     initialize_pieces(board.pieces);
     return board;
+}
+//
+// Clone a board
+//
+Board clone_board(Board* board)
+{
+    Board clone = {
+        .turn_number = board->turn_number,
+        .team_to_move = board->team_to_move,
+        .num_white_pawns = board->num_white_pawns,
+        .num_black_pawns = board->num_black_pawns,
+        .num_white_knights = board->num_white_knights,
+        .num_black_knights = board->num_black_knights,
+        .num_white_bishops = board->num_white_bishops,
+        .num_black_bishops = board->num_black_bishops,
+        .num_white_rooks = board->num_white_rooks,
+        .num_black_rooks = board->num_black_rooks,
+        .num_white_queens = board->num_white_queens,
+        .num_black_queens = board->num_black_queens
+    };
+    
+    for (int i = 0; i < 8; i++)
+    {
+        memcpy(clone.pieces[i], board->pieces[i], 8 * sizeof(piece_t));
+    }
+    return clone;
 }
 //
 // Remove a piece and decrement the board's
@@ -266,7 +293,7 @@ bool king_in_check(Board* board, PieceColor color)
 
             target_col = king_pos.col - 1;
 
-            if (target_col > 0 && PIECE_TYPE(board->pieces[target_row][target_col]) == PAWN && PIECE_COLOR(board->pieces[target_row][target_col]) != color)
+            if (target_col >= 0 && PIECE_TYPE(board->pieces[target_row][target_col]) == PAWN && PIECE_COLOR(board->pieces[target_row][target_col]) != color)
             {
                 return true;
             }
@@ -291,7 +318,7 @@ bool king_in_check(Board* board, PieceColor color)
 
             target_col = king_pos.col - 1;
 
-            if (target_col > 0 && PIECE_TYPE(board->pieces[target_row][target_col]) == PAWN && PIECE_COLOR(board->pieces[target_row][target_col]) != color)
+            if (target_col >= 0 && PIECE_TYPE(board->pieces[target_row][target_col]) == PAWN && PIECE_COLOR(board->pieces[target_row][target_col]) != color)
             {
                 return true;
             }
@@ -598,6 +625,8 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
     }
 
     board->team_in_check = king_in_check(board, !board->team_to_move);
+    board->turn_number++;
+    board->team_to_move = !board->team_to_move;
 }
 //
 // Try to move a piece and get back a result
@@ -640,9 +669,6 @@ MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, i
         if (move.dst_col == dst_col && move.dst_row == dst_row) 
         {
             move_piece(board, src_col, src_row, dst_col, dst_row);
-
-            board->turn_number++;
-            board->team_to_move = !board->team_to_move;
             return MOVE_SUCCESS;
         }
     }
@@ -746,7 +772,7 @@ int get_possible_moves_pawn(Board *board, PieceColor color, int row, int col, Mo
     int result;
     
     // check side 1 for enemy piece
-    if (col - 1 > 0) 
+    if (col - 1 >= 0) 
     {
         result = target_state(board, target_row, col - 1, color);
         if (result == ENEMY || (board->en_passant_opportunity.row == target_row && board->en_passant_opportunity.col == col - 1))
@@ -871,8 +897,8 @@ int get_possible_moves_bishop(Board *board, PieceColor color, int row, int col, 
     int distance;
     
     // move right-down
-    distance = (8-col) < (8-row)? 
-               (8-col) : (8-row);
+    distance = (7-col) < (7-row)? 
+               (7-col) : (7-row);
 
     for (int i = 1; i <= distance; i++) 
     {
@@ -890,8 +916,8 @@ int get_possible_moves_bishop(Board *board, PieceColor color, int row, int col, 
     }
 
     // move right-up
-    distance = (8-col) < (row)? 
-               (8-col) : (row);
+    distance = (7-col) < (row)? 
+               (7-col) : (row);
 
     for (int i = 1; i <= distance; i++) 
     {
@@ -909,8 +935,8 @@ int get_possible_moves_bishop(Board *board, PieceColor color, int row, int col, 
     }
 
     // move left-down
-    distance = (col) < (8-row)? 
-               (col) : (8-row);
+    distance = (col) < (7-row)? 
+               (col) : (7-row);
 
     for (int i = 1; i <= distance; i++) 
     {
@@ -1037,71 +1063,61 @@ int get_possible_moves_king(Board *board, PieceColor color, int row, int col, Mo
     // Castling
 
     // white
-    if (color == PIECE_COLOR_WHITE && row == 7 && col == 4) {
+    if (color == PIECE_COLOR_WHITE && row == 7 && col == 4) 
+    {
         piece_t castle = board->pieces[7][7];
+
         if (PIECE_TYPE(castle) == ROOK && PIECE_COLOR(castle) == PIECE_COLOR_WHITE
             && target_state(board, 7, 5, color) == EMPTY
-            && target_state(board, 7, 6, color) == EMPTY) {
-            
-            if (!board->team_in_check || !simulate_for_check(*board, col, row, 7, 6))
+            && target_state(board, 7, 6, color) == EMPTY) 
+        {
+            if (add_if_valid_move(board, col, row, 6, 7, moves, moves_found))
             {
-                moves[moves_found++] = (Move) {
-                    row,
-                    col,
-                    7,
-                    6,
-                    piece,
-                    board->pieces[7][6]
-                };
+                moves_found++;
             }
         }
+
         piece_t far_castle = board->pieces[7][0];
+
         if (PIECE_TYPE(far_castle) == ROOK && PIECE_COLOR(far_castle) == PIECE_COLOR_WHITE
             && target_state(board, 7, 1, color) == EMPTY
             && target_state(board, 7, 2, color) == EMPTY
-            && target_state(board, 7, 3, color) == EMPTY) {
- 
-            moves[moves_found++] = (Move) {
-                row,
-                col,
-                7,
-                2,
-                piece,
-                board->pieces[7][2]
-            };
+            && target_state(board, 7, 3, color) == EMPTY) 
+        {
+            if (add_if_valid_move(board, col, row, 2, 7, moves, moves_found))
+            {
+                moves_found++;
+            }
         }
     // black
-    } else if (color == PIECE_COLOR_BLACK && row == 0 && col == 4) {
-
+    } 
+    else if (color == PIECE_COLOR_BLACK && row == 0 && col == 4) 
+    {
         piece_t castle = board->pieces[0][7];
         if (PIECE_TYPE(castle) == ROOK && PIECE_COLOR(castle) == PIECE_COLOR_BLACK
             && target_state(board, 0, 5, color) == EMPTY
-            && target_state(board, 0, 6, color) == EMPTY) {
-            moves[moves_found++] = (Move) {
-                row,
-                col,
-                0,
-                6,
-                piece,
-                board->pieces[0][6]
-            };
+            && target_state(board, 0, 6, color) == EMPTY) 
+        {
+            if (add_if_valid_move(board, col, row, 6, 0, moves, moves_found))
+            {
+                moves_found++;
+            }
         }
+
         piece_t far_castle = board->pieces[0][0];
+
         if (PIECE_TYPE(far_castle) == ROOK && PIECE_COLOR(far_castle) == PIECE_COLOR_BLACK
             && target_state(board, 0, 1, color) == EMPTY
             && target_state(board, 0, 2, color) == EMPTY
-            && target_state(board, 0, 3, color) == EMPTY) {
-
-            moves[moves_found++] = (Move) {
-                row,
-                col,
-                0,
-                2,
-                piece,
-                board->pieces[0][2]
-            };
+            && target_state(board, 0, 3, color) == EMPTY) 
+        {
+            if (add_if_valid_move(board, col, row, 2, 0, moves, moves_found))
+            {
+                moves_found++;
+            }
         }
     }
+
     return moves_found;
 }
 

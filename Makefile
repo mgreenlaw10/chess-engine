@@ -15,7 +15,7 @@ endif
 
 CC = gcc
 TARGET = chess-engine
-SRC = $(wildcard src/*.c)
+SRC = $(wildcard src/*.c) $(wildcard src/strategy/*.c)
 OBJ = $(SRC:.c=.o)
 
 .PHONY: all clean run
