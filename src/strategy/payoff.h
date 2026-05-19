@@ -4,11 +4,15 @@
 #define ROOK_SCORE 5
 #define BISHOP_SCORE 3
 #define KNIGHT_SCORE 3
-// pawn score is 1
+#define PAWN_SCORE 1
+
+// max material = queen + 2 rooks + 2 bishops + 2 knights + 8 pawns
+#define MAX_PAYOFF (QUEEN_SCORE + 2*ROOK_SCORE + 2*BISHOP_SCORE + 2*KNIGHT_SCORE + 8*PAWN_SCORE)
+#define MIN_PAYOFF (-MAX_PAYOFF)
 
 // What contributes to payoff of a board:
     // 1. Material (value per piece)
-    // 2. Mobility (number of legal moves the player has)
+    // *not done* 2. Mobility (number of legal moves the player has)
 
 int payoff(Board* board);
 

@@ -1,4 +1,5 @@
 #include "gui.h"
+#include "strategy/move_tree.h"
 #include <stdio.h>
 
 #define RAYGUI_IMPLEMENTATION
@@ -312,20 +313,25 @@ void draw_board(Board* board, GameGuiState* gui, Texture2D piece_textures, float
     piece_t selected_piece = (piece_t)NONE;
     Move possible_moves[32];
     int num_possible_moves = 0;
+    //
+    MoveScore move_scores[32];
 
-    if (gui->selected_col != NO_SELECTION || gui->selected_row != NO_SELECTION) 
+    if (gui->selected_col != NO_SELECTION || gui->selected_row != NO_SELECTION)
     {
         selected_piece = board->pieces[gui->selected_row][gui->selected_col];
     }
 
-    if (PIECE_TYPE(selected_piece) != NONE) 
+    if (PIECE_TYPE(selected_piece) != NONE)
     {
         num_possible_moves = get_possible_moves (
-            board, 
-            gui->selected_row, 
-            gui->selected_col, 
+            board,
+            gui->selected_row,
+            gui->selected_col,
             possible_moves
         );
+        // only score moves for white (human player)
+        if (board->team_to_move == PIECE_COLOR_WHITE)
+            get_score(board, possible_moves, num_possible_moves, move_scores);
     }
     //
     // Draw each square

@@ -1,5 +1,6 @@
 #include "../board.h"
 #include "payoff.h"
+#include "move_tree.h"
 
 // get all the moves
 
@@ -117,7 +118,7 @@ Move best_move(Board* board, int depth) {
 
     for (int i = 0; i < total_moves; i++) {
         // make a copy of the board (remove this if we have an undo)
-        Board copy = clone_board(board);
+        Board copy = *board;
         move_piece(&copy, moves[i].col, moves[i].row, moves[i].dst_col, moves[i].dst_row);
 
         // after our move, call alpha beta for the opponent
@@ -135,4 +136,26 @@ Move best_move(Board* board, int depth) {
     }
     // return the move that led to best score
     return best;
+}
+
+// Scores a given list of moves — caller passes in moves and count, gets back scores at matching indices
+
+int get_score(Board* board, Move moves[], int num_moves, MoveScore scores[]) {
+    for (int i = 0; i < num_moves; i++) {
+        // apply move to a copy
+        Board copy = *board;
+        move_piece(&copy, moves[i].col, moves[i].row, moves[i].dst_col, moves[i].dst_row);
+        // find the payoff
+        int score = payoff(&copy);
+
+        // normalize to [0, 1]
+        // cap at the material score so its not 10000
+        if (score > MAX_PAYOFF) score = MAX_PAYOFF;
+        if (score < MIN_PAYOFF) score = MIN_PAYOFF;
+        float normalized = (score - MIN_PAYOFF) / (float)(MAX_PAYOFF - MIN_PAYOFF);
+
+        scores[i].move = moves[i];
+        scores[i].score = normalized;
+    }
+    return num_moves;
 }
