@@ -1,6 +1,7 @@
 #include "../board.h"
 #include "payoff.h"
 #include "move_tree.h"
+#include "../test.h"
 
 // get all the moves
 
@@ -23,6 +24,14 @@ static int is_game_over(Board *board)
 {
     PieceColor to_move = board->team_to_move;
     return (king_in_checkmate(board, to_move) || king_in_stalemate(board, to_move));
+}
+
+static void print_move_eval(Move move, int score, int depth)
+{
+    printf("Depth: %d", depth);
+    printf(", Move: ");
+    print_move(move);
+    printf(", Eval: %d\n", score);
 }
 
 
@@ -53,7 +62,7 @@ static int terminal_score(Board *board)
 
 int alpha_beta (Board* board, int depth, int Alpha, int Beta, PieceColor color){
 
-    Move moves[256];
+    Move moves[512];
     
     // get total moves
     int total_moves = collect_all_moves(board, board->team_to_move, moves);
@@ -73,6 +82,7 @@ int alpha_beta (Board* board, int depth, int Alpha, int Beta, PieceColor color){
 
             // next depth recursive call - black turn
             int score = alpha_beta(&copy, depth - 1, Alpha, Beta, PIECE_COLOR_BLACK);
+
             // if max score then update best
             if (score > best) best = score;
 
@@ -116,6 +126,9 @@ Move best_move(Board* board, int depth) {
     Move best = moves[0];
     int best_score = (board->team_to_move == PIECE_COLOR_WHITE) ? -100000 : 100000;
 
+    // DEBUG PRINT
+    printf("Turn number: %d\n", board->turn_number);
+
     for (int i = 0; i < total_moves; i++) {
         // make a copy of the board (remove this if we have an undo)
         Board copy = *board;
@@ -123,7 +136,10 @@ Move best_move(Board* board, int depth) {
 
         // after our move, call alpha beta for the opponent
         PieceColor opponent = (board->team_to_move == PIECE_COLOR_WHITE) ? PIECE_COLOR_BLACK : PIECE_COLOR_WHITE;
-        int score = alpha_beta(&copy, depth - 1, -100000, 100000, opponent);
+        int score = alpha_beta(&copy, depth, -100000, 100000, opponent);
+
+        // DEBUG PRINT
+        print_move_eval(moves[i], score, depth);
 
         // higher payoff  = better for white, lower = better for black
         if (board->team_to_move == PIECE_COLOR_WHITE && score > best_score) {
@@ -134,6 +150,11 @@ Move best_move(Board* board, int depth) {
             best = moves[i];
         }
     }
+
+    // DEBUG PRINT
+    printf("Selected move:\n");
+    print_move_eval(best, best_score, depth);
+
     // return the move that led to best score
     return best;
 }
