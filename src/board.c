@@ -610,26 +610,6 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
         board->pieces[src_row][3] = board->pieces[src_row][0];
         board->pieces[src_row][0] = (piece_t)NONE;
     }
-
-    if (type == ROOK && src_row == dst_row && (src_row == 7 || src_row == 0) && PIECE_TYPE(captured) == NONE) 
-    {
-        piece_t king = board->pieces[src_row][4];
-        
-        if (PIECE_TYPE(king) == KING && PIECE_COLOR(king) == color) 
-        {
-            if (src_col == 7 && dst_col == 5 && PIECE_TYPE(board->pieces[src_row][6]) == NONE) 
-            {
-                board->pieces[src_row][6] = king;
-                board->pieces[src_row][4] = (piece_t)NONE;
-
-            } 
-            else if (src_col == 0 && dst_col == 3 && PIECE_TYPE(board->pieces[src_row][2]) == NONE)
-            {
-                board->pieces[src_row][2] = king;
-                board->pieces[src_row][4] = (piece_t)NONE;
-            }
-        }
-    }
     
     // Check if pawn should promote after moving.
     if (type == PAWN) 
