@@ -62,6 +62,8 @@ Board new_board()
     Board board = {
         .turn_number = 1,
         .team_to_move = PIECE_COLOR_WHITE,
+        .team_in_check = false,
+        .en_passant_opportunity = { .row = -1, .col = -1 },
         .num_white_pawns = 8,
         .num_black_pawns = 8,
         .num_white_knights = 2,
@@ -84,6 +86,8 @@ Board clone_board(Board* board)
     Board clone = {
         .turn_number = board->turn_number,
         .team_to_move = board->team_to_move,
+        .team_in_check = board->team_in_check,
+        .en_passant_opportunity = board->en_passant_opportunity,
         .num_white_pawns = board->num_white_pawns,
         .num_black_pawns = board->num_black_pawns,
         .num_white_knights = board->num_white_knights,
@@ -113,6 +117,10 @@ static void capture_piece(Board* board, int col, int row)
     if (type == NONE)
     {
         return;
+    }
+    if (type == KING)
+    {
+        printf("Error: A king was captured!\n");
     }
 
     PieceColor color = PIECE_COLOR(board->pieces[row][col]);
@@ -196,7 +204,7 @@ BoardPos find_king(Board* board, PieceColor color)
         }
     }
     // There is a bug if king was not found.
-    printf("ERROR! The %s king is missing!", color == PIECE_COLOR_WHITE? "white" : "black");
+    printf("ERROR! The %s king is missing!\n", color == PIECE_COLOR_WHITE? "white" : "black");
 }
 //
 // Take a board by value, execute a move,
@@ -405,10 +413,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool bishop_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == BISHOP || PIECE_TYPE(target_piece) == QUEEN);
         bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
 
-        if (rook_queen_check || king_check)
+        if (bishop_queen_check || king_check)
         {
             return true;
         }
@@ -418,10 +426,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool bishop_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == BISHOP || PIECE_TYPE(target_piece) == QUEEN);
         bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
 
-        if (rook_queen_check || king_check)
+        if (bishop_queen_check || king_check)
         {
             return true;
         }
@@ -431,10 +439,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool bishop_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == BISHOP || PIECE_TYPE(target_piece) == QUEEN);
         bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
 
-        if (rook_queen_check || king_check)
+        if (bishop_queen_check || king_check)
         {
             return true;
         }
@@ -444,10 +452,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool bishop_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == BISHOP || PIECE_TYPE(target_piece) == QUEEN);
         bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
 
-        if (rook_queen_check || king_check)
+        if (bishop_queen_check || king_check)
         {
             return true;
         }
@@ -672,8 +680,8 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
 //
 MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row) 
 {
-    // If moving to the same square...
-    if (src_col == dst_col && src_row == dst_row)
+    // If moving to the same square or trying to capture own piece
+    if ((src_col == dst_col && src_row == dst_row))
     {
         return INVALID_MOVE;
     }
@@ -682,14 +690,11 @@ MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, i
     {
         return WRONG_TEAM;
     }
-    // If a king is in check, skip unless 
-    // the selected piece is that king.
-    //
-    // Pass by value to copy
-    if (simulate_for_check(*board, src_col, src_row, dst_col, dst_row)) 
-    {
-        return KING_IN_CHECK;
-    }
+
+    // if (simulate_for_check(*board, src_col, src_row, dst_col, dst_row)) 
+    // {
+    //     return KING_IN_CHECK;
+    // }
 
     Move moves[32];
     int num_moves = get_possible_moves (
@@ -711,6 +716,7 @@ MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, i
     }
     // If no valid move matched
     // the destination, return false.
+    printf("got here \n");
     return INVALID_MOVE;
 }
 

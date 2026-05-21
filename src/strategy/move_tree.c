@@ -118,7 +118,7 @@ int alpha_beta (Board* board, int depth, int Alpha, int Beta, PieceColor color){
 // calls alpha_beta on each possible move and tracks which one had the best score
 Move best_move(Board* board, int depth) {
     // get all legal moves for current player
-    Move moves[256];
+    Move moves[512];
     int total_moves = collect_all_moves(board, board->team_to_move, moves);
 
     // start with first move as default

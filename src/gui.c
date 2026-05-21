@@ -210,10 +210,6 @@ void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures)
                 
                 if (result != MOVE_SUCCESS) 
                 {
-                    if (result == KING_IN_CHECK)
-                    {
-                        printf("failed");
-                    }
                     gui->selected_col = clicked_col;
                     gui->selected_row = clicked_row;
                 }
