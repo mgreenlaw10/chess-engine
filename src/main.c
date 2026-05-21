@@ -7,7 +7,7 @@ void loop(ProgramState* program_state, Board* board, GameGuiState* gui, Texture2
     {
         case MAIN_MENU:
 
-            do_main_menu_loop(program_state);
+            do_main_menu_loop(program_state, gui);
             break;
 
         case IN_GAME:
@@ -24,6 +24,14 @@ void loop(ProgramState* program_state, Board* board, GameGuiState* gui, Texture2
                 gui->white_king_in_checkmate = false;
                 gui->black_king_in_checkmate = false;
                 gui->reset_game = false;
+            }
+
+            // If gui requested back to menu...
+            if (gui->back_to_menu)
+            {
+                gui->reset_game = true;
+                *program_state = MAIN_MENU;
+                gui->back_to_menu = false;
             }
             break;
     }

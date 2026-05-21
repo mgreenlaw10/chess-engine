@@ -19,6 +19,8 @@ typedef struct {
     bool white_king_in_checkmate;
     bool black_king_in_checkmate;
     bool reset_game;
+    bool black_is_bot;
+    bool back_to_menu;
 } GameGuiState;
 //
 // Board colors
@@ -62,7 +64,7 @@ bool get_square_under_mouse(int board_x, int board_y, int board_w, int board_h, 
 //
 // Main update loop functions
 //
-void do_main_menu_loop(ProgramState* program_state);
+void do_main_menu_loop(ProgramState* program_state, GameGuiState* gui);
 void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures);
 //
 // Draw functions called by udpate loop functions

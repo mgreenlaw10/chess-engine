@@ -2,5 +2,5 @@
 
 typedef enum {
     MAIN_MENU,
-    IN_GAME
+    IN_GAME,
 } ProgramState;

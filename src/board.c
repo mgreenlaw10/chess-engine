@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "board.h"
+
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) > (b) ? (b) : (a))
 
 //
 // Use constant offsets for finding squares targeted
@@ -244,6 +248,15 @@ static bool first_occupied_square(Board* board, BoardPos origin, Direction direc
     }
 
     return false;
+}
+//
+// Returns the minimum distance in either axis between two board positions.
+//
+static int adjacency_distance(BoardPos p1, BoardPos p2)
+{
+    int dc = abs(p1.col - p2.col);
+    int dr = abs(p1.row - p2.row);
+    return MIN(dc, dr);
 }
 //
 //

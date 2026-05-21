@@ -107,7 +107,7 @@ static Rectangle get_source_region(piece_t piece)
 //
 // Main GUI draw loop for main menu.
 //
-void do_main_menu_loop(ProgramState* program_state) 
+void do_main_menu_loop(ProgramState* program_state, GameGuiState* gui) 
 {
     int screen_w = GetScreenWidth();
     int screen_h = GetScreenHeight();
@@ -115,7 +115,7 @@ void do_main_menu_loop(ProgramState* program_state)
     int center_y = screen_h / 2;
 
     int title_w = screen_w * 3.0f / 4.0f;
-    int button_w = 200;
+    int button_w = 240;
 
     Rectangle title_bounds = {
         screen_w / 2 - title_w / 2,
@@ -125,7 +125,14 @@ void do_main_menu_loop(ProgramState* program_state)
     };
 
     Rectangle start_button_bounds = {
-        center_x - button_w / 2,
+        center_x - button_w - 16,
+        240,
+        button_w,
+        64
+    };
+
+    Rectangle start_bot_button_bounds = {
+        center_x + 16,
         240,
         button_w,
         64
@@ -138,8 +145,15 @@ void do_main_menu_loop(ProgramState* program_state)
 
     GuiLabel(title_bounds, "Welcome to the greatest chess\nsimulation on the planet >:)\n\nBy Mack and Evelyn <3");
 
-    if (GuiButton(start_button_bounds, "Start Game")) 
+    if (GuiButton(start_button_bounds, "Play Against Human")) 
     {
+        gui->black_is_bot = false;
+        *program_state = IN_GAME;
+    }
+
+    if (GuiButton(start_bot_button_bounds, "Play Against Bot"))
+    {
+        gui->black_is_bot = true;
         *program_state = IN_GAME;
     }
 
@@ -150,7 +164,7 @@ void do_main_menu_loop(ProgramState* program_state)
 //
 void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures) 
 {
-    if (board->team_to_move == PIECE_COLOR_BLACK)
+    if (gui->black_is_bot && board->team_to_move == PIECE_COLOR_BLACK)
     {
         Move move = best_move(board, 3);
         move_piece(board, move.col, move.row, move.dst_col, move.dst_row);
@@ -254,18 +268,32 @@ void draw_game_gui(Board* board, GameGuiState* gui)
     char turn_num_str[32];
     snprintf(turn_num_str, sizeof(turn_num_str), "Turn number: %d", board->turn_number);
 
-    // Reset button
-    int reset_button_w = 120;
-    int reset_button_h = 24;
+    // Buttons
+    int button_w = 120;
+    int button_h = 24;
+
     Rectangle reset_button_bounds = {
-        screen_w - 24 - reset_button_w,
+        screen_w - (24 + button_w) * 2,
         24,
-        reset_button_w,
-        reset_button_h
+        button_w,
+        button_h
     };
+
+    Rectangle menu_button_bounds = {
+        screen_w - 24 - button_w,
+        24,
+        button_w,
+        button_h
+    };
+
     if (GuiButton(reset_button_bounds, "Reset Game"))
     {
         gui->reset_game = true;
+    }
+
+    if (GuiButton(menu_button_bounds, "Back to Menu"))
+    {
+        gui->back_to_menu = true;
     }
 
     // Turn number label
