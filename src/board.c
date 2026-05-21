@@ -250,13 +250,13 @@ static bool first_occupied_square(Board* board, BoardPos origin, Direction direc
     return false;
 }
 //
-// Returns the minimum distance in either axis between two board positions.
+// Returns the maximum distance in either axis between two board positions.
 //
 static int adjacency_distance(BoardPos p1, BoardPos p2)
 {
     int dc = abs(p1.col - p2.col);
     int dr = abs(p1.row - p2.row);
-    return MIN(dc, dr);
+    return MAX(dc, dr);
 }
 //
 //
@@ -353,7 +353,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
 
-        if (PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN))
+        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
+
+        if (rook_queen_check || king_check)
         {
             return true;
         }
@@ -363,7 +366,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        if (PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN))
+        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
+
+        if (rook_queen_check || king_check)
         {
             return true;
         }
@@ -373,7 +379,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        if (PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN))
+        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
+
+        if (rook_queen_check || king_check)
         {
             return true;
         }
@@ -383,7 +392,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        if (PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN))
+        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
+
+        if (rook_queen_check || king_check)
         {
             return true;
         }
@@ -393,7 +405,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        if (PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == BISHOP || PIECE_TYPE(target_piece) == QUEEN))
+        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
+
+        if (rook_queen_check || king_check)
         {
             return true;
         }
@@ -403,7 +418,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        if (PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == BISHOP || PIECE_TYPE(target_piece) == QUEEN))
+        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
+
+        if (rook_queen_check || king_check)
         {
             return true;
         }
@@ -413,7 +431,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        if (PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == BISHOP || PIECE_TYPE(target_piece) == QUEEN))
+        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
+
+        if (rook_queen_check || king_check)
         {
             return true;
         }
@@ -423,7 +444,10 @@ bool king_in_check(Board* board, PieceColor color)
     {
         target_piece = board->pieces[target_pos.row][target_pos.col];
         
-        if (PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == BISHOP || PIECE_TYPE(target_piece) == QUEEN))
+        bool rook_queen_check = PIECE_COLOR(target_piece) != color && (PIECE_TYPE(target_piece) == ROOK || PIECE_TYPE(target_piece) == QUEEN);
+        bool king_check = PIECE_COLOR(target_piece) != color && PIECE_TYPE(target_piece) == KING && adjacency_distance(king_pos, target_pos) == 1;
+
+        if (rook_queen_check || king_check)
         {
             return true;
         }
