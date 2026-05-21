@@ -1,10 +1,10 @@
 #include "../board.h" // Ensure board.h defines board_t or include the correct file
 
-#define QUEEN_SCORE 10
-#define ROOK_SCORE 5
-#define BISHOP_SCORE 3
-#define KNIGHT_SCORE 3
-#define PAWN_SCORE 1
+#define QUEEN_SCORE 100
+#define ROOK_SCORE 50
+#define BISHOP_SCORE 30
+#define KNIGHT_SCORE 30
+#define PAWN_SCORE 10
 
 // max material = queen + 2 rooks + 2 bishops + 2 knights + 8 pawns
 #define MAX_PAYOFF (QUEEN_SCORE + 2*ROOK_SCORE + 2*BISHOP_SCORE + 2*KNIGHT_SCORE + 8*PAWN_SCORE)

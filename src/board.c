@@ -852,17 +852,28 @@ int get_possible_moves_pawn(Board *board, PieceColor color, int row, int col, Mo
     }
 
     // SPECIAL MOVES:
-    // First move pawn can move 2 squares ahead
-        // if white row = 6
-        // if black row = 1
-    if (color == PIECE_COLOR_WHITE && row == 6 && target_state(board, row - 2, col, color) == EMPTY)
+    // First move pawn can move 2 squares ahead if it is on its starting square
+    // and the next two squares ahead are clear.
+    bool on_starting_square;
+    bool front_clear;
+
+    // For WHITE
+    on_starting_square = color == PIECE_COLOR_WHITE && row == 6;
+    front_clear = target_state(board, row - 2, col, color) == EMPTY && target_state(board, row - 1, col, color) == EMPTY;
+
+    if (on_starting_square && front_clear)
     {
         if (add_if_valid_move(board, col, row, col, row - 2, moves, moves_found))
         {
             moves_found++;
         }
     }
-    if (color == PIECE_COLOR_BLACK && row == 1 && target_state(board, row + 2, col, color) == EMPTY)
+
+    // For BLACK
+    on_starting_square = color == PIECE_COLOR_BLACK && row == 1;
+    front_clear = target_state(board, row + 2, col, color) == EMPTY && target_state(board, row + 1, col, color) == EMPTY;
+    
+    if (on_starting_square && front_clear)
     {
         if (add_if_valid_move(board, col, row, col, row + 2, moves, moves_found))
         {
