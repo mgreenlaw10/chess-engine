@@ -3,8 +3,44 @@
 #include "move_tree.h"
 #include "../test.h"
 
-// get all the moves
+#define MOVE_BUFFER_SIZE 256
+//
+// Sort moves by Most Valuable Victim, Least Valuable Aggressor
+//
+static void mvv_lva_sort(Move moves[], int num_moves)
+{
+    if (num_moves <= 1) return;
 
+    // Bubble sort using MVV-LVA metric:
+    // metric = PIECE_SCORES[capture_piece_type] - PIECE_SCORES[attacker_piece_type]
+    // If there's no capture (capture piece type == NONE) treat metric as 0.
+    for (int i = 0; i < num_moves - 1; i++) {
+        for (int j = 0; j < num_moves - 1 - i; j++) {
+            int metric_j = 0;
+            int metric_j1 = 0;
+
+            PieceType cap_j = PIECE_TYPE(moves[j].capture_piece);
+            if (cap_j != NONE) {
+                metric_j = PIECE_SCORES[cap_j] - PIECE_SCORES[PIECE_TYPE(moves[j].piece)];
+            }
+
+            PieceType cap_j1 = PIECE_TYPE(moves[j+1].capture_piece);
+            if (cap_j1 != NONE) {
+                metric_j1 = PIECE_SCORES[cap_j1] - PIECE_SCORES[PIECE_TYPE(moves[j+1].piece)];
+            }
+
+            // We want higher metric first (most valuable victim, least valuable aggressor)
+            if (metric_j < metric_j1) {
+                Move tmp = moves[j];
+                moves[j] = moves[j+1];
+                moves[j+1] = tmp;
+            }
+        }
+    }
+
+}
+
+// get all the moves
 static int collect_all_moves(Board *board, PieceColor color, Move moves[])
 {
     int moves_found = 0;
@@ -15,6 +51,7 @@ static int collect_all_moves(Board *board, PieceColor color, Move moves[])
             moves_found += get_possible_moves(board, i, j, moves + moves_found);
         }
     }
+    mvv_lva_sort(moves, moves_found);
     return moves_found;
 }
 
@@ -26,10 +63,9 @@ static int is_game_over(Board *board)
     return (king_in_checkmate(board, to_move) || king_in_stalemate(board, to_move));
 }
 
-static void print_move_eval(Move move, int score, int depth)
+static void print_move_eval(Move move, int score)
 {
-    printf("Depth: %d", depth);
-    printf(", Move: ");
+    printf("Move: ");
     print_move(move);
     printf(", Eval: %d\n", score);
 }
@@ -62,7 +98,7 @@ static int terminal_score(Board *board)
 
 int alpha_beta (Board* board, int depth, int Alpha, int Beta, PieceColor color){
 
-    Move moves[512];
+    Move moves[MOVE_BUFFER_SIZE];
     
     // get total moves
     int total_moves = collect_all_moves(board, board->team_to_move, moves);
@@ -118,7 +154,7 @@ int alpha_beta (Board* board, int depth, int Alpha, int Beta, PieceColor color){
 // calls alpha_beta on each possible move and tracks which one had the best score
 Move best_move(Board* board, int depth) {
     // get all legal moves for current player
-    Move moves[512];
+    Move moves[MOVE_BUFFER_SIZE];
     int total_moves = collect_all_moves(board, board->team_to_move, moves);
 
     // start with first move as default
@@ -139,7 +175,7 @@ Move best_move(Board* board, int depth) {
         int score = alpha_beta(&copy, depth, -100000, 100000, opponent);
 
         // DEBUG PRINT
-        print_move_eval(moves[i], score, depth);
+        //print_move_eval(moves[i], score, depth);
 
         // higher payoff  = better for white, lower = better for black
         if (board->team_to_move == PIECE_COLOR_WHITE && score > best_score) {
@@ -153,7 +189,7 @@ Move best_move(Board* board, int depth) {
 
     // DEBUG PRINT
     printf("Selected move:\n");
-    print_move_eval(best, best_score, depth);
+    print_move_eval(best, best_score);
 
     // return the move that led to best score
     return best;

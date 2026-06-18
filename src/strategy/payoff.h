@@ -6,6 +6,10 @@
 #define KNIGHT_SCORE 30
 #define PAWN_SCORE 10
 
+const int PIECE_SCORES[6] = {
+    10, 30, 33, 50, 90, 10000
+};
+
 // max material = queen + 2 rooks + 2 bishops + 2 knights + 8 pawns
 #define MAX_PAYOFF (QUEEN_SCORE + 2*ROOK_SCORE + 2*BISHOP_SCORE + 2*KNIGHT_SCORE + 8*PAWN_SCORE)
 #define MIN_PAYOFF (-MAX_PAYOFF)

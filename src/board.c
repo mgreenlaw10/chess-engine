@@ -38,7 +38,7 @@ static void initialize_pieces(piece_t pieces[8][8]) {
     // Fill in empty space
     for (int i = 2; i < 6; i++) {
         for (int j = 0; j < 8; j++) {
-            pieces[i][j] = (piece_t)0;
+            pieces[i][j] = MAKE_PIECE(NONE, PIECE_COLOR_WHITE);
         }
     }
     // White on bottom
@@ -183,7 +183,7 @@ static void capture_piece(Board* board, int col, int row)
             break;
     }
     // Actually remove the piece
-    board->pieces[row][col] = (piece_t)0;
+    board->pieces[row][col] = MAKE_PIECE(NONE, PIECE_COLOR_WHITE);
 }
 //
 // Return the position of a specific king.
@@ -589,7 +589,7 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
     }
     
     board->pieces[dst_row][dst_col] = board->pieces[src_row][src_col];
-    board->pieces[src_row][src_col] = (piece_t)NONE;
+    board->pieces[src_row][src_col] = MAKE_PIECE(NONE, PIECE_COLOR_WHITE);
 
     int color = PIECE_COLOR(board->pieces[dst_row][dst_col]);
     int type = PIECE_TYPE(board->pieces[dst_row][dst_col]);
@@ -600,7 +600,7 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
     if (type == KING && src_row == dst_row && (src_row == 7 || src_row == 0) && src_col == 4 && dst_col == 6) 
     {
         board->pieces[src_row][5] = board->pieces[src_row][7];
-        board->pieces[src_row][7] = (piece_t)NONE;
+        board->pieces[src_row][7] = MAKE_PIECE(NONE, PIECE_COLOR_WHITE);
         
     }
 
@@ -608,7 +608,7 @@ void move_piece(Board* board, int src_col, int src_row, int dst_col, int dst_row
     if (type == KING && src_row == dst_row && (src_row == 7 || src_row == 0) && src_col == 4 && dst_col == 2) 
     {
         board->pieces[src_row][3] = board->pieces[src_row][0];
-        board->pieces[src_row][0] = (piece_t)NONE;
+        board->pieces[src_row][0] = MAKE_PIECE(NONE, PIECE_COLOR_WHITE);
     }
     
     // Check if pawn should promote after moving.
@@ -696,7 +696,6 @@ MoveResult try_move_piece(Board* board, int src_col, int src_row, int dst_col, i
     }
     // If no valid move matched
     // the destination, return false.
-    printf("got here \n");
     return INVALID_MOVE;
 }
 

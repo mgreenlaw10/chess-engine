@@ -166,7 +166,9 @@ void do_game_loop(Board* board, GameGuiState* gui, Texture2D piece_textures)
 {
     if (gui->black_is_bot && board->team_to_move == PIECE_COLOR_BLACK)
     {
-        Move move = best_move(board, 3);
+        Move move;
+        TIME_CLOCK(move = best_move(board, 4));
+        
         move_piece(board, move.col, move.row, move.dst_col, move.dst_row);
 
         // After moving, check to see if the enemy king is in checkmate.
@@ -334,7 +336,7 @@ void draw_board(Board* board, GameGuiState* gui, Texture2D piece_textures, float
     // Get possible moves for selected piece.
     // Must do this before drawing so we can highlight those tiles during draw.
     //
-    piece_t selected_piece = (piece_t)NONE;
+    piece_t selected_piece = MAKE_PIECE(NONE, PIECE_COLOR_WHITE);
     Move possible_moves[32];
     int num_possible_moves = 0;
     //
